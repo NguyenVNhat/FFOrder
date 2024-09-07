@@ -62,7 +62,6 @@ public class OrderServiceImpl implements IOrderService {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Payment method not found", ""));
         }
         PaymentMethod paymentMethodEntity = paymentMethodOptional.get();
-
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "User not found", ""));
