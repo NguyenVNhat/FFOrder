@@ -5,6 +5,7 @@ import com.example.BE_PBL6_FastOrderSystem.repository.*;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.response.OrderResponse;
 import com.example.BE_PBL6_FastOrderSystem.service.IOrderService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -35,13 +36,18 @@ public class OrderServiceImpl implements IOrderService {
         return orderCode;
     }
 
-    public ResponseEntity<APIRespone> processOrder(Long userId, String paymentMethod, List<Long> cartIds, String deliveryAddress, String orderCode) {
-        List<CartItem> cartItems = cartIds.stream()
+    public ResponseEntity<APIRespone> processProductOrder(Long userId, String paymentMethod, List<Long> cartIds, String deliveryAddress, String orderCode) {
+        List<Cart> cartItems = cartIds.stream()
                 .flatMap(cartId -> cartItemRepository.findByCartId(cartId).stream())
-                .collect(Collectors.toList());
+                .filter(cartItem -> cartItem.getUser().getId().equals(userId))
+                .collect(Collectors.toList()); // get all cart items by cartId and userId
 
         if (cartItems.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Carts are empty", ""));
+        }
+
+        if (cartItems.stream().anyMatch(cartItem -> !cartItem.getUser().getId().equals(userId))) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Carts does not belong to the specified you! ", ""));
         }
 
         Long storeId = cartItems.get(0).getStoreId();
@@ -56,7 +62,6 @@ public class OrderServiceImpl implements IOrderService {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Payment method not found", ""));
         }
         PaymentMethod paymentMethodEntity = paymentMethodOptional.get();
-
         Optional<User> userOptional = userRepository.findById(userId);
         if (userOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "User not found", ""));
@@ -98,9 +103,9 @@ public class OrderServiceImpl implements IOrderService {
         order.setOrderDetails(orderDetails);
         order.setTotalAmount(orderDetails.stream().mapToDouble(OrderDetail::getTotalPrice).sum());
         orderRepository.save(order);
-        System.out.println("Đã lưu order: " + order.toString());
+        System.out.println("Đã lưu order");
         cartItemRepository.deleteAll(cartItems);
-        System.out.println("Các sản phẩm đã được xóa khỏi giỏ hàng"+ cartItems.toString());
+        System.out.println("Các sản phẩm đã được xóa khỏi giỏ hàng");
         return ResponseEntity.ok(new APIRespone(true, "Order placed successfully", ""));
     }
 
@@ -119,10 +124,11 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public ResponseEntity<APIRespone> updateOrderStatusOfOwner(String orderCode, Long ownerId, String status) {
-        if (orderRepository.findByOrderCode(orderCode).isEmpty()) {
+        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
+        if (orderOptional.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Order code not found", ""));
         }
-        Order order = orderRepository.findByOrderCode(orderCode).get();
+        Order order = orderOptional.get();
         Store store = order.getStore();
         if (!store.getManager().getId().equals(ownerId)) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "You are not authorized to update this order", ""));
@@ -141,6 +147,23 @@ public class OrderServiceImpl implements IOrderService {
         order.setStatus(status);
         orderRepository.save(order);
         return ResponseEntity.ok(new APIRespone(true, "Order status updated successfully",""));
+    }
+    @Override
+    public ResponseEntity<APIRespone> cancelOrder(String orderCode, Long userId) {
+        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
+        if (orderOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Order not found", ""));
+        }
+        Order order = orderOptional.get();
+        if (!order.getUser().getId().equals(userId)) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Order does not belong to the specified user", ""));
+        }
+        if (order.getStatus().equals("Đơn hàng đã được xác nhận")) { // đây là k
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Order cannot be canceled", ""));
+        }
+        order.setStatus("Đã hủy");
+        orderRepository.save(order);
+        return ResponseEntity.ok(new APIRespone(true, "Order canceled successfully", ""));
     }
 
     @Override
@@ -171,10 +194,46 @@ public class OrderServiceImpl implements IOrderService {
         List<OrderResponse> orderResponses = ownerOrders.stream().map(OrderResponse::new).collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Success", orderResponses));
     }
+
+    @Override
+    public ResponseEntity<APIRespone> getOrdersByStatusAndUserId(String status, Long userId) {
+        List<Order> orders = orderRepository.findAllByStatusAndUserId(status, userId);
+        if (orders.isEmpty()) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "No order found", ""));
+        }
+        List<OrderResponse> orderResponses = orders.stream().map(OrderResponse::new).collect(Collectors.toList());
+        return ResponseEntity.ok(new APIRespone(true, "Success", orderResponses));
+    }
+
+    @Override
+    public ResponseEntity<APIRespone> findOrderByOrderIdAndUserId(String orderCode, Long userId) {
+        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
+        if (orderOptional.isEmpty()) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Order not found", ""));
+        }
+        Order order = orderOptional.get();
+        if (!order.getUser().getId().equals(userId)) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Order does not belong to the specified user", ""));
+        }
+        return ResponseEntity.ok(new APIRespone(true, "Success", new OrderResponse(order)));
+    }
+
+    @Override
+    public ResponseEntity<APIRespone> getOrdersByStatusAndOwnerId(String status, Long ownerId) {
+        List<Order> orders = orderRepository.findAll();
+        List<Order> ownerOrders = orders.stream()
+                .filter(order -> order.getStore().getManager().getId().equals(ownerId))
+                .filter(order -> order.getStatus().equals(status))
+                .collect(Collectors.toList());
+        List<OrderResponse> orderResponses = ownerOrders.stream().map(OrderResponse::new).collect(Collectors.toList());
+        return ResponseEntity.ok(new APIRespone(true, "Success", orderResponses));
+    }
+
     @Override
     public ResponseEntity<APIRespone> processComboOrder(Long userId, String paymentMethod, List<Long> cartIds, String deliveryAddress, String orderCode) {
-        List<CartItem> cartItems = cartIds.stream()
+        List<Cart> cartItems = cartIds.stream()
                 .flatMap(cartId -> cartItemRepository.findByCartId(cartId).stream())
+                .filter(cartItem -> cartItem.getUser().getId().equals(userId))
                 .collect(Collectors.toList());
 
         if (cartItems.isEmpty()) {
@@ -242,7 +301,7 @@ public class OrderServiceImpl implements IOrderService {
     }
 
     @Override
-    public List<CartItem> getCartItemsByCartId(Long cartId) {
+    public List<Cart> getCartItemsByCartId(Long cartId) {
         return cartItemRepository.findByCartId(cartId);
     }
 
@@ -258,8 +317,8 @@ public class OrderServiceImpl implements IOrderService {
 
     @Override
     public Order findOrderByOrderCode(String orderCode) {
-        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
-        return orderOptional.orElse(null);
+        return orderRepository.findByOrderCode(orderCode)
+                .orElseThrow(() -> new EntityNotFoundException("Order not found with code: " + orderCode));
     }
 
     @Override

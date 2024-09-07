@@ -14,12 +14,14 @@ public class ResponseConverter {
         CategoryResponse categoryResponse = new CategoryResponse(
                 product.getCategory().getCategoryId(),
                 product.getCategory().getCategoryName(),
+                product.getCategory().getImage(),
                 product.getCategory().getDescription()
         );
         List<StoreResponse> storeResponses = product.getStores().stream()
                 .map(store -> new StoreResponse(
                         store.getStoreId(),
                         store.getStoreName(),
+                        store.getImage(),
                         store.getLocation(),
                         store.getLongitude(),
                         store.getLatitude(),

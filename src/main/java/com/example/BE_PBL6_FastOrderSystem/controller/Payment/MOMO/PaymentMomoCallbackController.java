@@ -20,49 +20,22 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/momo")
 public class PaymentMomoCallbackController {
-
-    private final IOrderService orderService;
-    private final IPaymentService paymentService;
-    private final PaymentRepository paymentRepository;
-    private final Map<String, PaymentRequest> orderRequestCache = new HashMap<>();
-
     @GetMapping("/callback")
-    public ResponseEntity<APIRespone> callBack(@RequestParam Map<String, String> callbackRequestDTO) {
-        String orderId = callbackRequestDTO.get("orderId");
-        String message = callbackRequestDTO.get("message");
+    public ResponseEntity<Map<String, Object>> callBack(@RequestParam Map<String, Object> callbackRequestDTO) {
 
-        if ("Success".equalsIgnoreCase(message)) {
-            // Nhận thông tin đơn hàng từ cache
-            PaymentRequest orderRequest = orderRequestCache.get(orderId);
-            if (orderRequest != null) {
-                // Xử lý đặt hàng
-                ResponseEntity<APIRespone> response = orderService.processOrder(orderRequest.getUserId(), "MOMO", orderRequest.getCartIds(), orderRequest.getDeliveryAddress(), orderRequest.getOrderCode());
-                if (response.getStatusCode() == HttpStatus.OK) {
-                    // Cập nhật trạng thái đơn hàng
-                    orderService.updateOrderStatus(orderRequest.getOrderCode(), "Chưa giao hàng");
-
-                    // Nhận thông tin đơn hàng
-                    Order order = orderService.findOrderByOrderCode(orderRequest.getOrderCode());
-
-                    // Lưu Payment entity bằng payment service với trạng thái "Đã thanh toán"
-                    return paymentService.savePayment(orderRequest, order, orderRequest.getUserId(), orderRequest.getDeliveryAddress());
-                } else {
-                    // Đặt hàng thất bại
-                    return response;
-                }
-            } else {
-                // Không tìm thấy thông tin đơn hàng
-                return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new APIRespone(false, "Order information not found", null));
-            }
+        Map<String, Object> result = new HashMap<>();
+        if (callbackRequestDTO.containsKey("message")
+                && callbackRequestDTO.get("message").equals("Success")) {
+            result.put("orderId", callbackRequestDTO.get("orderId"));
+            result.put("amount", callbackRequestDTO.get("amount"));
+            result.put("orderInfo", callbackRequestDTO.get("orderInfo"));
+            result.put("message", callbackRequestDTO.get("message"));
         } else {
-            // Thanh toán thất bại
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new APIRespone(false, "Payment failed: " + message, null));
+
+            result.put("message", callbackRequestDTO.get("message"));
         }
-    }
-    // Lưu thông tin đơn hàng vào cache
-    public void cacheOrderRequest(PaymentRequest orderRequest) {
-        orderRequestCache.put(orderRequest.getOrderCode(), orderRequest);
+
+        return new ResponseEntity<>(result, HttpStatus.OK);
+
     }
 }
