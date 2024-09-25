@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.function.EntityResponse;
 
 @RestController
 @RequiredArgsConstructor
@@ -37,10 +36,11 @@ public class AdminComboController {
     ResponseEntity<APIRespone> deleteCombo(@PathVariable Long comboId){
         return comboService.deleteCombo(comboId);
     }
-    @PostMapping("/addProduct/{comboId}/{productId}")
-    ResponseEntity<APIRespone> addProduct(@PathVariable Long comboId, @PathVariable Long productId){
+    @PostMapping("/addProduct/{comboId}")
+    ResponseEntity<APIRespone> addProduct(@PathVariable Long comboId, @RequestParam Long productId){
         return comboService.addProduct(comboId, productId);
     }
+
 
 
 }

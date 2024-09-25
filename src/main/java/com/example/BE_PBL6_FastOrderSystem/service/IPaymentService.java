@@ -7,15 +7,17 @@ import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
 public interface IPaymentService {
-    Map<String, Object> createOrder(PaymentRequest orderRequest) throws NoSuchAlgorithmException, InvalidKeyException, IOException;
+    Map<String, Object> createOrderMomo(PaymentRequest orderRequest) throws NoSuchAlgorithmException, InvalidKeyException, IOException;
+    ResponseEntity<APIRespone> savePayment(PaymentRequest orderRequest, Long orderId, Long userId);
+    Map<String, Object> createOrderZaloPay(PaymentRequest orderRequest) throws IOException;
+    Map<String, Object> getStatusMomo(PaymentRequest requestDTO) throws IOException;
+    Map<String, Object> getStatusZaloPay(PaymentRequest requestDTO) throws IOException, URISyntaxException;
+    
 
-    Map<String, Object> getStatus(PaymentRequest requestDTO) throws IOException;
-
-    PaymentMethod findPaymentMethodByName(String momo);
-    ResponseEntity<APIRespone> savePayment(PaymentRequest orderRequest, Order order, Long userId, String deliveryAddress);
 }
