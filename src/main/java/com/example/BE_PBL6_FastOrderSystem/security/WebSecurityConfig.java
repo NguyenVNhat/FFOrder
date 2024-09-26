@@ -64,6 +64,12 @@ public class WebSecurityConfig {
     private static final String[] ZALO = {
             "/api/v1/zalopay/**"
     };
+    private static final String[] CHAT = {
+            "/api/chats/**"
+    };
+    private static final String[] SOCKET = {
+            "/ws/chat/**"
+    };
     @Autowired
     public WebSecurityConfig(@Lazy JwtUtils jwtUtils, JwtAuthEntryPoint jwtAuthEntryPoint, FoodUserDetailsService userDetailsService) {
         this.jwtUtils = jwtUtils;
@@ -109,6 +115,8 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH).permitAll()
                         .requestMatchers(PUBLIC).permitAll()
+                        .requestMatchers(CHAT).permitAll()
+                        .requestMatchers(SOCKET).permitAll()
                         .requestMatchers(MOMO).permitAll()
                         .requestMatchers(ZALO).permitAll()
                         .requestMatchers(USER).hasAnyRole("ADMIN", "USER", "OWNER")
