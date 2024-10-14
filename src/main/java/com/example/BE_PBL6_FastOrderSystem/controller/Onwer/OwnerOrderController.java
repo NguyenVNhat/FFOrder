@@ -14,11 +14,10 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class OwnerOrderController {
     private final IOrderService orderService;
-    @GetMapping("/get-all")
+    @GetMapping("")
     public ResponseEntity<APIRespone> getAllOrder() {
-        Long ownerId = FoodUserDetails.getCurrentUserId();
-        System.out.println(ownerId);
-        return orderService.getAllOrderDetailOfStore(ownerId);
+        Long OwnerId = FoodUserDetails.getCurrentUserId();
+        return orderService.getAllOrderDetailOfStore(OwnerId);
     }
     @GetMapping("/get-by-code")
     public ResponseEntity<APIRespone> getOrderByCode(@RequestParam String orderCode) {

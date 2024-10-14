@@ -18,13 +18,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.ExceptionHandlingConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -51,6 +48,9 @@ public class WebSecurityConfig {
     };
     private static final String[] STAFF = {
             "/api/v1/staff/**"
+    };
+    private static final String[] SHIPPER = {
+            "/api/v1/shipper/**"
     };
     private static final String[] USER = {
             "/api/v1/user/**"
@@ -120,30 +120,31 @@ public class WebSecurityConfig {
                         .requestMatchers(MOMO).permitAll()
                         .requestMatchers(ZALO).permitAll()
                         .requestMatchers(USER).hasAnyRole("ADMIN", "USER", "OWNER")
+                        .requestMatchers(STAFF).hasAnyRole("STAFF", "ADMIN")
+                        .requestMatchers(SHIPPER).hasAnyRole("SHIPPER", "ADMIN", "OWNER")
                         .requestMatchers(OWNER).hasAnyRole("OWNER", "ADMIN")
                         .requestMatchers(ADMIN).hasAnyRole("ADMIN")
                         .anyRequest().authenticated()
+//                )
+//                        .sessionManagement(session -> session.maximumSessions(1)
+//                        .maxSessionsPreventsLogin(true)
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/api/v1/auth/login-google")
+                        .defaultSuccessUrl("/api/v1/auth/oauth2/callback", true)
+                        .failureUrl("/api/v1/auth/login-google-failure")
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .loginPage("/api/v1/auth/login-facebook")
+                        .defaultSuccessUrl("/api/v1/auth/oauth2/callback", true)
+                        .failureUrl("/api/v1/auth/login-facebook-failure")
                 );
-        configureGoogleLogin(http);
-        configureFacebookLogin(http);
+
+
         http.authenticationProvider(authenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
-    private void configureGoogleLogin(HttpSecurity http) throws Exception {
-        http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/api/v1/auth/login-google")
-                .defaultSuccessUrl("/api/v1/auth/login-facebook-callback", true)
-                .failureUrl("/api/v1/auth/login-google-failure")
-        );
-    }
 
-    private void configureFacebookLogin(HttpSecurity http) throws Exception {
-        http.oauth2Login(oauth2 -> oauth2
-                .loginPage("/api/v1/auth/login-facebook")
-                .defaultSuccessUrl("/api/v1/auth/login-google-callback", true)
-                .failureUrl("/api/v1/auth/login-facebook-failure")
-        );
-    }
 }

@@ -20,13 +20,22 @@ public interface IPromotionService {
 
     ResponseEntity<APIRespone> addPromotion(PromotionRequest promotionRequest);
 
+    ResponseEntity<APIRespone> applyPromotionsToStore(List<Long> promotionIds, Long storeId);
+
     ResponseEntity<APIRespone> applyPromotionToStore(Long promotionId, Long storeId);
 
     ResponseEntity<APIRespone> applyPromotionToAllStores(Long promotionId);
 
     ResponseEntity<APIRespone> applyPromotionToProduct(Long promotionId, Long productId);
 
+
+    ResponseEntity<APIRespone> removePromotionsFromStore(List<Long> promotionIds, Long storeId);
+
+    ResponseEntity<APIRespone> applyPromotionToListProducts(Long promotionId, List<Long> productIds);
+
     ResponseEntity<APIRespone> DeletePromotion(Long promotionId);
 
     ResponseEntity<APIRespone> updatePromotion(Long promotionId, PromotionRequest promotionRequest);
+
+    ResponseEntity<APIRespone> removePromotionFromProduct(Long promotionId, Long productId);
 }

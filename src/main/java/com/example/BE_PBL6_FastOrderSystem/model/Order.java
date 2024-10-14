@@ -22,10 +22,15 @@ public class Order {
     private List<OrderDetail> orderDetails;
     private LocalDateTime orderDate;
     private Double totalAmount;
+    private Double shippingFee;
     @ManyToOne
     @JoinColumn(name = "status_id")
     private StatusOrder status;
     private String deliveryAddress;
+    @Column(name = "longitude", columnDefinition = "DOUBLE")
+    private Double longitude;
+    @Column(name = "latitude", columnDefinition = "DOUBLE")
+    private Double latitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     @PrePersist
@@ -47,10 +52,15 @@ public class Order {
         return "Order{" +
                 "orderId=" + orderId +
                 ", orderCode='" + orderCode + '\'' +
+                ", user=" + user +
+                ", orderDetails=" + orderDetails +
                 ", orderDate=" + orderDate +
                 ", totalAmount=" + totalAmount +
-                ", status='" + status + '\'' +
+                ", shippingFee=" + shippingFee +
+                ", status=" + status +
                 ", deliveryAddress='" + deliveryAddress + '\'' +
+                ", longitude=" + longitude +
+                ", latitude=" + latitude +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';

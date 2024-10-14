@@ -3,6 +3,7 @@ package com.example.BE_PBL6_FastOrderSystem.controller.User;
 import com.example.BE_PBL6_FastOrderSystem.exception.AlreadyExistsException;
 import com.example.BE_PBL6_FastOrderSystem.model.User;
 import com.example.BE_PBL6_FastOrderSystem.request.UserRequest;
+import com.example.BE_PBL6_FastOrderSystem.request.UserRequestV2;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.response.UserResponse;
 import com.example.BE_PBL6_FastOrderSystem.security.user.FoodUserDetails;
@@ -25,23 +26,34 @@ public class UserAuthController {
     @GetMapping("/profile")
     public ResponseEntity<APIRespone> getUserProfile() {
         Long userId = FoodUserDetails.getCurrentUserId();
-       return userService.getUserProfile(userId);
+        return userService.getUserProfile(userId);
     }
 
     @PutMapping("/profile/update")
     public ResponseEntity<APIRespone> updateUser(@RequestBody UserRequest userRequest) {
-            String fullName = userRequest.getFullName();
-            MultipartFile avatar = userRequest.getAvatar();
-            String email = userRequest.getEmail();
-            String address = userRequest.getAddress();
-            Long userId = FoodUserDetails.getCurrentUserId();
-            UserRequest userResquest = new UserRequest(fullName, avatar, email, address);
-            return userService.updateUser(userId, userResquest);
+        String fullName = userRequest.getFullName();
+        MultipartFile avatar = userRequest.getAvatar();
+        String email = userRequest.getEmail();
+        String address = userRequest.getAddress();
+        Long userId = FoodUserDetails.getCurrentUserId();
+        UserRequest userResquest = new UserRequest(fullName, avatar, email, address);
+        return userService.updateUser(userId, userResquest);
     }
+    @PutMapping("/profiles/update")
+    public ResponseEntity<APIRespone> updateUsers(@RequestBody UserRequestV2 userRequest) {
+        Long userId = FoodUserDetails.getCurrentUserId();
+        return userService.updateUserV2(userId, userRequest);
+    }
+
     @PutMapping("/profile/add-phone")
     public ResponseEntity<APIRespone> addPhone(@RequestParam("phone") String phone) {
         Long userId = FoodUserDetails.getCurrentUserId();
         return userService.addPhone(userId, phone);
+    }
+
+    @GetMapping("/location/{userId}")
+    public ResponseEntity<APIRespone> getUserLocation(@PathVariable Long userId) {
+        return userService.getLocations(userId);
     }
 }
 

@@ -7,7 +7,8 @@ import com.example.BE_PBL6_FastOrderSystem.repository.PaymentMethodRepository;
 import com.example.BE_PBL6_FastOrderSystem.repository.PaymentRepository;
 import com.example.BE_PBL6_FastOrderSystem.request.PaymentRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
-import com.example.BE_PBL6_FastOrderSystem.response.OrderResponse;
+import com.example.BE_PBL6_FastOrderSystem.response.PaymentDetailResponse;
+import com.example.BE_PBL6_FastOrderSystem.response.PaymentResponse;
 import com.example.BE_PBL6_FastOrderSystem.service.IPaymentService;
 import com.example.BE_PBL6_FastOrderSystem.utils.Helper.HelperHmacSHA256;
 import com.example.BE_PBL6_FastOrderSystem.utils.constants.MoMoConstant;
@@ -157,9 +158,8 @@ public class PaymentServiceImpl implements IPaymentService {
         if (!optionalOrder.isPresent()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new APIRespone(false, "Order not found", ""));
         }
-    
+
         Order order = optionalOrder.get();
-        
         Payment payment = new Payment();
         payment.setOrder(order);
         payment.setPaymentDate(LocalDateTime.now());
@@ -173,20 +173,20 @@ public class PaymentServiceImpl implements IPaymentService {
         payment.setLang(orderRequest.getLang());
         payment.setExtraData(orderRequest.getExtraData());
         paymentRepository.save(payment);
-    
+
         List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(order.getOrderId());
-        // group cac order detail theo store
+
+        // nhom cac OrderDetail theo Store
         Map<Store, List<OrderDetail>> groupedOrderDetails = orderDetails.stream()
                 .collect(Collectors.groupingBy(OrderDetail::getStore));
-        System.out.println("Grouped order details by store"+ groupedOrderDetails);
+
         for (Map.Entry<Store, List<OrderDetail>> entry : groupedOrderDetails.entrySet()) {
             Store store = entry.getKey();
-            System.out.println("Store: " + store.getStoreName());
             List<OrderDetail> orderDetailList = entry.getValue();
 
-            // tính tổng số tiền của các OrderDetail
+            // tinh tong tien cua cac OrderDetail cua Store
             double totalAmount = orderDetailList.stream().mapToDouble(OrderDetail::getTotalPrice).sum();
-            // lưu PaymentDetail cho từng store
+
             PaymentDetail paymentDetail = new PaymentDetail();
             paymentDetail.setPayment(payment);
             paymentDetail.setOrder(order);
@@ -196,10 +196,12 @@ public class PaymentServiceImpl implements IPaymentService {
             paymentDetail.setCreatedAt(LocalDateTime.now());
             paymentDetail.setUpdatedAt(LocalDateTime.now());
             paymentDetailRepository.save(paymentDetail);
+
             System.out.println("Payment detail saved for store: " + store.getStoreName());
         }
         return ResponseEntity.ok(new APIRespone(true, "Payment and payment details saved successfully", ""));
     }
+
         @Override
         public Map<String, Object> createOrderZaloPay(PaymentRequest orderRequest) throws IOException {
         Long amount = orderRequest.getAmount();
@@ -312,6 +314,74 @@ public class PaymentServiceImpl implements IPaymentService {
 
 		return response;
 	}
+    @Override
+    public ResponseEntity<APIRespone> getAllPayment(){
+          if (paymentRepository.findAll().isEmpty()) {
+              return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new APIRespone(false, "No payment found", ""));
+          }
+            List<PaymentResponse> paymentResponses = paymentRepository.findAll().stream()
+                    .map(payment -> {
+                        PaymentResponse paymentResponse = new PaymentResponse();
+                        paymentResponse.setPaymentId(payment.getPaymentId());
+                        paymentResponse.setUserId(payment.getUserId());
+                        paymentResponse.setOrderId(payment.getOrder().getOrderId());
+                        paymentResponse.setPaymentMethod(payment.getPaymentMethod().getName());
+                        paymentResponse.setTotal(payment.getAmountPaid());
+                        paymentResponse.setStatus(payment.getStatus());
+                        paymentResponse.setCreatedAt(payment.getCreatedAt());
+                        paymentResponse.setPaymentDate(payment.getPaymentDate());
+                        paymentResponse.setOrderCode(payment.getOrderCode());
+                        paymentResponse.setOrderInfo(payment.getOrderInfo());
+                        return paymentResponse;
+                    })
+                    .collect(Collectors.toList());
+            return ResponseEntity.ok(new APIRespone(true, "Success", paymentResponses));
+    }
+    @Override
+    public ResponseEntity<APIRespone> getPaymentById(Long paymentId) {
+        Optional<Payment> optionalPayment = paymentRepository.findById(paymentId);
+        if (optionalPayment.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new APIRespone(false, "Payment not found", ""));
+        }
+        List<PaymentResponse> paymentResponses = paymentRepository.findById(paymentId).stream()
+                .map(payment -> {
+                    PaymentResponse paymentResponse = new PaymentResponse();
+                    paymentResponse.setPaymentId(payment.getPaymentId());
+                    paymentResponse.setUserId(payment.getUserId());
+                    paymentResponse.setOrderId(payment.getOrder().getOrderId());
+                    paymentResponse.setPaymentMethod(payment.getPaymentMethod().getName());
+                    paymentResponse.setTotal(payment.getAmountPaid());
+                    paymentResponse.setStatus(payment.getStatus());
+                    paymentResponse.setCreatedAt(payment.getCreatedAt());
+                    paymentResponse.setPaymentDate(payment.getPaymentDate());
+                    paymentResponse.setOrderCode(payment.getOrderCode());
+                    paymentResponse.setOrderInfo(payment.getOrderInfo());
+                    return paymentResponse;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new APIRespone(true, "Success", paymentResponses));
+    }
+    @Override
+    public ResponseEntity<APIRespone> getPaymentDetailByPaymentId(Long paymentId) {
+        Optional<Payment> optionalPayment = paymentRepository.findById(paymentId);
+        if (optionalPayment.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new APIRespone(false, "Payment not found", ""));
+        }
+        List<PaymentDetailResponse> paymentDetailResponses = paymentDetailRepository.findByPaymentId(paymentId).stream()
+                .map(paymentDetail -> {
+                    PaymentDetailResponse paymentDetailResponse = new PaymentDetailResponse();
+                    paymentDetailResponse.setPaymentDetailId(paymentDetail.getId());
+                    paymentDetailResponse.setPaymentId(paymentDetail.getPayment().getPaymentId());
+                    paymentDetailResponse.setTotal(paymentDetail.getTotalAmount());
+                    paymentDetailResponse.setStatus(paymentDetail.getPaymentStatus());
+                    paymentDetailResponse.setOrderId(paymentDetail.getOrder().getOrderId());
+                    paymentDetailResponse.setStoreId(paymentDetail.getStore().getStoreId());
+                    return paymentDetailResponse;
+                })
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new APIRespone(true, "Success", paymentDetailResponses));
+    }
+
 
 }
 

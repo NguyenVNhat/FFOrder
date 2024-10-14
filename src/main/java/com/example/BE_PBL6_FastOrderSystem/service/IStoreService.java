@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface IStoreService {
+    ResponseEntity<APIRespone> getStoreByUserId(Long userId);
+
     ResponseEntity<APIRespone> getStoreById(Long storeId);
 
     ResponseEntity<APIRespone> getAllStores();
@@ -19,4 +21,5 @@ public interface IStoreService {
     ResponseEntity <APIRespone>  updateStore(Long id, StoreRequest storeRequest);
 
     ResponseEntity<APIRespone> deleteStore(Long id);
+
 }

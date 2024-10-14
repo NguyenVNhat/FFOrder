@@ -20,7 +20,8 @@ public class PublicController {
     private final IStoreService storeService;
     private final ISizeService sizeService;
     private final IStatusOrderService statusOrderService;
-    private final IStaffService scheduleService;
+    private final IRateService rateService;
+
     private final IOrderService orderService;
     @GetMapping("/categories/all")
     public  ResponseEntity<APIRespone> getAllCategories() {
@@ -33,7 +34,10 @@ public class PublicController {
     @GetMapping("/products/all")
     public ResponseEntity<APIRespone> getAllProducts() throws SQLException {
        return productService.getAllProduct();
-
+    }
+    @GetMapping("/products/{storeid}/{categoryid}")
+    public ResponseEntity<APIRespone> getProduct_ByStoreAndCategoryById(@PathVariable("storeid") Long storeId,@PathVariable("categoryid") Long categoryid) {
+        return productService.getProductsByStore_CategoryId(storeId,categoryid);
     }
     @GetMapping("/products/{id}")
     public ResponseEntity<APIRespone> getProductById(@PathVariable("id") Long productId) {
@@ -80,6 +84,11 @@ public class PublicController {
     public ResponseEntity<APIRespone> getStoreById(@PathVariable("id") Long storeId) {
         return storeService.getStoreById(storeId);
     }
+    @GetMapping("/category/stores/{id}")
+    public ResponseEntity<APIRespone> getCategoryByStoreId(@PathVariable("id") Long storeId) {
+        return categoryService.getCategoryByStoreId(storeId);
+    }
+
     @GetMapping("/promotions/all")
     public ResponseEntity<APIRespone> getPromotions() {
        return promotionService.getAllPromotion();
@@ -97,6 +106,14 @@ public class PublicController {
       public ResponseEntity<APIRespone> getSizeById(@PathVariable("id") Long sizeId) {
          return sizeService.getSizeById(sizeId);
       }
+    @GetMapping("/rate/product/{productId}")
+    public ResponseEntity<APIRespone> getRateByProductId(@PathVariable("productId") Long productId) {
+        return rateService.getRateByProduct(productId);
+    }
+    @GetMapping("/rate/combo/{comboId}")
+    public ResponseEntity<APIRespone> getRateByComboId(@PathVariable("comboId") Long comboId) {
+        return rateService.getRateByCombo(comboId);
+    }
     @GetMapping("/status/all")
     public ResponseEntity<APIRespone> getStatus() {
         return statusOrderService.getAllStatus();
