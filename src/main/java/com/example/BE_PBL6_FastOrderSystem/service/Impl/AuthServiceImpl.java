@@ -9,6 +9,7 @@ import com.example.BE_PBL6_FastOrderSystem.response.JwtResponse;
 import com.example.BE_PBL6_FastOrderSystem.security.jwt.JwtUtils;
 import com.example.BE_PBL6_FastOrderSystem.security.user.FoodUserDetails;
 import com.example.BE_PBL6_FastOrderSystem.service.IAuthService;
+import com.example.BE_PBL6_FastOrderSystem.service.IUserService;
 import com.example.BE_PBL6_FastOrderSystem.utils.ImageGeneral;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -162,6 +163,7 @@ public class AuthServiceImpl implements IAuthService {
         if (user.getAddress() == null || !user.getAddress().matches("^[\\p{L}0-9\\s,.-]+$")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new APIRespone(false, "Address is required and must contain only letters, numbers, spaces, commas, periods, and hyphens", ""));
         }
+        user.setAccountLocked(false);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Optional<Role> optionalRole = roleRepository.findByName("ROLE_OWNER");
         if (optionalRole.isEmpty()) {
@@ -393,5 +395,4 @@ public class AuthServiceImpl implements IAuthService {
                 roles
         )));
     }
-
 }

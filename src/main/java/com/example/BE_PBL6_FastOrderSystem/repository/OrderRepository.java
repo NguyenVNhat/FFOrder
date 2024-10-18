@@ -3,6 +3,7 @@ package com.example.BE_PBL6_FastOrderSystem.repository;
 import com.example.BE_PBL6_FastOrderSystem.model.Order;
 import com.example.BE_PBL6_FastOrderSystem.model.StatusOrder;
 
+import org.jooq.impl.QOM;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -28,5 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
 
      @Query("SELECT o FROM Order o WHERE o.user.id = ?1")
      List<Order> findAllByUserId(Long userId);
-
+    @Query("SELECT o FROM Order o")
+    List<Order> findAlll();
 }

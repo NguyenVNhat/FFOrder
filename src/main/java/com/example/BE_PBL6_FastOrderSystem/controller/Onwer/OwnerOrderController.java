@@ -29,6 +29,7 @@ public class OwnerOrderController {
             @RequestParam String orderCode,
             @RequestParam String status) {
             Long ownerId = FoodUserDetails.getCurrentUserId();
+            System.out.println(ownerId);
             return orderService.updateStatusDetail(orderCode, ownerId, status);
     }
     @PutMapping("/update-quantity")
@@ -40,5 +41,10 @@ public class OwnerOrderController {
         return orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
     }
 
+    @GetMapping("/status")
+    public ResponseEntity<APIRespone> getAllOrderByStatusOfStore(String statusName) {
+        Long ownerId = FoodUserDetails.getCurrentUserId();
+        return orderService.getAllOrderByStatusOfStore(statusName,ownerId);
+    }
 
 }

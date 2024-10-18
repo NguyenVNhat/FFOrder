@@ -39,4 +39,5 @@ public interface IOrderService {
     ResponseEntity<APIRespone> findOrderByOrderCode(String orderCode);
     ResponseEntity<APIRespone> getOrdersByStatusAndUserId(String status, Long userId);
     ResponseEntity<APIRespone>  findOrderByOrderCodeAndUserId(String orderCode, Long userId);
+    ResponseEntity<APIRespone> getAllOrderByStatusOfStore(String statusName, Long OwnerId);
 }

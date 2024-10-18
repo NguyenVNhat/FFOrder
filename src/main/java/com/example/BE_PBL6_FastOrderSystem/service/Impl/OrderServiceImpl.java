@@ -414,15 +414,28 @@ public class OrderServiceImpl implements IOrderService {
         if (stores.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Store not found", ""));
         }
+
+        // Kiểm tra xem có đơn hàng nào có chi tiết hợp lệ không
         List<Order> orders1 = orders.stream()
-                .filter(order -> order.getOrderDetails().stream().anyMatch(orderDetail -> stores.contains(orderDetail.getStore())))
+                .filter(order -> {
+                    if (order.getOrderDetails() != null && !order.getOrderDetails().isEmpty()) {
+                        return order.getOrderDetails().stream()
+                                .anyMatch(orderDetail -> orderDetail.getStore() != null && stores.contains(orderDetail.getStore()));
+                    }
+                    // Không in ra order nếu không có OrderDetail
+                    return false;
+                })
                 .toList();
+
         if (orders1.isEmpty()) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "No order found", ""));
         }
+
+        // Chuyển đổi các đơn hàng thành OrderResponse
         List<OrderResponse> orderResponses = orders1.stream()
                 .map(OrderResponse::new)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(new APIRespone(true, "Success", orderResponses));
     }
 
@@ -566,6 +579,16 @@ public class OrderServiceImpl implements IOrderService {
         }
         return ResponseEntity.ok(new APIRespone(true, "Success", new OrderResponse(order)));
     }
-    
 
+    @Override
+    public ResponseEntity<APIRespone> getAllOrderByStatusOfStore(String statusName, Long OwnerId) {
+        StatusOrder statusOrder = statusOrderRepository.findByStatusName(statusName);
+        List<Store> stores = storeRepository.findAllByManagerId(OwnerId);
+
+        if (stores.isEmpty()) {
+            return ResponseEntity.badRequest().body(new APIRespone(false, "Store not found", ""));
+        }
+        return ResponseEntity.badRequest().body(new APIRespone(false, "Store not found", ""));
+
+    }
 }

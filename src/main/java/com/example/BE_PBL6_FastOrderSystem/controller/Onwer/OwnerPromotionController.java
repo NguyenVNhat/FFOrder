@@ -29,4 +29,5 @@ public class OwnerPromotionController {
         return promotionService.getAllPromoByStoreId(storeId);
     }
 
+
 }

@@ -13,6 +13,7 @@ public class OrderDetail {
     private Long orderDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id")
+    @JsonIgnore
     private Order order;
     @ManyToOne
     @JoinColumn(name = "product_id")

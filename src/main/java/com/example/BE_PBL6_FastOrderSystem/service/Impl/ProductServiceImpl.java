@@ -402,6 +402,40 @@ public class ProductServiceImpl implements IProductService {
 
     }
 
+    @Override
+    public ResponseEntity<APIRespone> addProductsToStore(List<Long> productIds, Long OwnerId, List<Integer> quantity){
+        List<Store> stores = storeRepository.findAllByManagerId(OwnerId);
+        if (stores.isEmpty()) {
+            return new ResponseEntity<>(new APIRespone(false, "Store not found", ""), HttpStatus.NOT_FOUND);
+        }
+        List<Product> products = productRepository.findAllById(productIds);
+        if (products.isEmpty()) {
+            return new ResponseEntity<>(new APIRespone(false, "Product not found", ""), HttpStatus.NOT_FOUND);
+        }
 
+        List<ProductStore> productStores = new ArrayList<>();
+        Store store = stores.get(0);
+        for(int i = 0; i < quantity.size(); i++){
+            Integer quantityToAdd = quantity.get(i);
+            Product product = products.get(i);
+            if (product != null) {
+                Optional<ProductStore> existingProductStore = productStoreRepository.findByProductIdAndStoreId(product.getProductId(),store.getStoreId());
+                if (existingProductStore.isPresent()) {
+                    // Nếu tồn tại, cập nhật số lượng
+                    ProductStore ps = existingProductStore.get();
+                    ps.setStockQuantity(ps.getStockQuantity() + quantityToAdd);
+                    productStoreRepository.save(ps); // Lưu lại sự thay đổi
+                } else {
+                    ProductStore productStore = new ProductStore();
+                    productStore.setProduct(product);
+                    productStore.setStore(store);
+                    productStore.setStockQuantity(quantityToAdd);
+                    productStores.add(productStore);
+                }
+            }
+        }
+        productStoreRepository.saveAll(productStores);
+        return new ResponseEntity<>(new APIRespone(true, "Products added successfully", ""), HttpStatus.OK);
+    }
 
 }

@@ -27,7 +27,7 @@ public class OrderResponse {
         this.userId = order.getUser().getId();
         this.orderDate = order.getOrderDate();
         this.totalAmount = order.getTotalAmount();
-        this.status = order.getStatus().getStatusName();
+        this.status = (order.getStatus() != null) ? order.getStatus().getStatusName() : "Unknown Status"; // Hoặc giá trị mặc định khác
         this.deliveryAddress = order.getDeliveryAddress();
         this.createdAt = order.getCreatedAt();
         this.updatedAt = order.getUpdatedAt();
