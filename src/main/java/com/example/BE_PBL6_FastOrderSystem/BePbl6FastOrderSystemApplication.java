@@ -35,7 +35,7 @@ public class BePbl6FastOrderSystemApplication {
                 roleRepository.save(new Role(Role.name.ROLE_OWNER.name()));
             }
             if (roleRepository.findByName(Role.name.ROLE_SHIPPER.name()).isEmpty()) {
-                roleRepository.save(new Role(Role.name.ROLE_SHIPPER.name()));
+                roleRepository.save(new Role(Role.name.ROLE_SHIPPER.name())); //cmt2
             }
         }
     }

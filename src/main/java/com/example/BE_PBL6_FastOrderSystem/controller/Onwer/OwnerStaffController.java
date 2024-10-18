@@ -24,7 +24,7 @@ public class OwnerStaffController {
     public ResponseEntity<APIRespone> getAllStaff() {
         return staffService.getAllStaff();
     }
-    @GetMapping("/staff/store/")
+    @GetMapping("/staff/store")
     public ResponseEntity<APIRespone> getStaffByStoreId() {
         Long OwerId = FoodUserDetails.getCurrentUserId();
         return staffService.getStaffByStoreId(OwerId);
