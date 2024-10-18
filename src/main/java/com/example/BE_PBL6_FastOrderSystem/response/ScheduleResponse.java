@@ -1,5 +1,6 @@
 package com.example.BE_PBL6_FastOrderSystem.response;
 
+import com.example.BE_PBL6_FastOrderSystem.model.Staff;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -10,15 +11,16 @@ public class ScheduleResponse {
     private LocalDateTime startShift;
     private LocalDateTime endShift;
     private LocalDateTime date;
-    private Long staffId;
+    private StaffResponse staffResponse;
 
 
-    public ScheduleResponse(Long id, String shift, LocalDateTime startShift, LocalDateTime endShift, LocalDateTime date, Long staffId) {
+    public ScheduleResponse(Long id, String shift, LocalDateTime startShift, LocalDateTime endShift, LocalDateTime date, Staff staff) {
         this.id = id;
         this.shift = shift;
         this.startShift = startShift;
         this.endShift = endShift;
         this.date = date;
-        this.staffId = staffId;
+        StaffResponse response = new StaffResponse(staff.getId(),staff.getEmployeeName(),staff.getStaff_code(),staff.getDepartment(),staff.getStore().getStoreId());
+        this.staffResponse = response;
     }
 }

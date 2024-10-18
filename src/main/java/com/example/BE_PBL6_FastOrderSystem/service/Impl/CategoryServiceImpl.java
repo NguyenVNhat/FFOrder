@@ -89,12 +89,16 @@ public class CategoryServiceImpl  implements ICategoryService {
 
     @Override
     public ResponseEntity<APIRespone> updateCategory(Long id, CategoryRequest categoryRequest) {
+        System.out.println(categoryRequest.getCategoryName());
+        System.out.println(categoryRequest.getDescription());
+        System.out.println(categoryRequest.getImage());
+
          if (categoryRepository.findById(id).isEmpty()) {
              return ResponseEntity.badRequest().body(new APIRespone(false, "Category not found", ""));
          }
-         if (categoryRepository.existsByCategoryName(categoryRequest.getCategoryName())) {
-             return ResponseEntity.badRequest().body(new APIRespone(false, "Category already exists", ""));
-         }
+//         if (categoryRepository.existsByCategoryName(categoryRequest.getCategoryName())) {
+//             return ResponseEntity.badRequest().body(new APIRespone(, "Category already exists", ""));
+//         }
         Category category = categoryRepository.findById(id).get();
         category.setCategoryName(categoryRequest.getCategoryName());
         try {

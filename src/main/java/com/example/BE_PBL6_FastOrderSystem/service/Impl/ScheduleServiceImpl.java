@@ -47,7 +47,7 @@ public class ScheduleServiceImpl implements IScheduleService {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new APIRespone(false, "No schedule found", null));
         }
         List<ScheduleResponse> scheduleResponses = scheduleRepository.findAll().stream()
-                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff().getId()))
+                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(),schedule.getStaff()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get all schedule successfully", scheduleResponses));
     }
@@ -58,7 +58,7 @@ public class ScheduleServiceImpl implements IScheduleService {
         }
         List<ScheduleResponse> scheduleResponses = scheduleRepository.findAll().stream()
                 .filter(schedule -> schedule.getStaff().getStore().getStoreId().equals(storeId))
-                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff().getId()))
+                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get schedule by store id successfully", scheduleResponses));
     }
@@ -69,7 +69,7 @@ public class ScheduleServiceImpl implements IScheduleService {
         }
         List<ScheduleResponse> scheduleResponses = scheduleRepository.findAll().stream()
                 .filter(schedule -> schedule.getId().equals(id))
-                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff().getId()))
+                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get schedule by id successfully", scheduleResponses));
     }
@@ -80,7 +80,7 @@ public class ScheduleServiceImpl implements IScheduleService {
         }
         List<ScheduleResponse> scheduleResponses = scheduleRepository.findAll().stream()
                 .filter(schedule -> schedule.getStaff().getEmployeeName().equals(employeeName))
-                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff().getId()))
+                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get schedule by employee name successfully", scheduleResponses));
 
@@ -92,7 +92,7 @@ public class ScheduleServiceImpl implements IScheduleService {
         }
         List<ScheduleResponse> scheduleResponses = scheduleRepository.findAll().stream()
                 .filter(schedule -> schedule.getStaff().getId().equals(staffId))
-                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff().getId()))
+                .map(schedule -> new ScheduleResponse(schedule.getId(), schedule.getShift(), schedule.getStartShift(), schedule.getEndShift(), schedule.getDate(), schedule.getStaff()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get schedule by staff id successfully", scheduleResponses));
     }

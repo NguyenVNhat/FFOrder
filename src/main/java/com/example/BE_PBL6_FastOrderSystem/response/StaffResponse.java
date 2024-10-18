@@ -1,5 +1,6 @@
 package com.example.BE_PBL6_FastOrderSystem.response;
 
+import com.example.BE_PBL6_FastOrderSystem.model.Staff;
 import lombok.Data;
 
 @Data
@@ -17,6 +18,5 @@ public class StaffResponse {
         this.department = department;
         this.storeId = storeId;;
     }
-
 
 }
