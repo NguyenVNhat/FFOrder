@@ -12,17 +12,17 @@ public class OrderDetail {
     @Column(name = "order_detail_id")
     private Long orderDetailId;
     @ManyToOne
-    @JoinColumn(name = "order_id, cascade = CascadeType.REMOVE")
+    @JoinColumn(name = "order_id")
     @JsonIgnore
     private Order order;
     @ManyToOne
-    @JoinColumn(name = "product_id, cascade = CascadeType.REMOVE")
+    @JoinColumn(name = "product_id")
     private Product product;
     @ManyToOne
-    @JoinColumn(name = "combo_id, cascade = CascadeType.REMOVE")
+    @JoinColumn(name = "combo_id")
     private Combo combo;
     @ManyToOne
-    @JoinColumn(name = "drink_product_id, cascade = CascadeType.REMOVE")
+    @JoinColumn(name = "drink_product_id")
     private Product drinkProduct;
 
     private Integer quantity;

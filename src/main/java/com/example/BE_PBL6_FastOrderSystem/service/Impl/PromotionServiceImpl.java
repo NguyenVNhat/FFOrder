@@ -128,9 +128,9 @@ public class PromotionServiceImpl implements IPromotionService {
 
     @Override
     public ResponseEntity<APIRespone> updatePromotion(Long promotionId, PromotionRequest promotionRequest) {
-        if (promotionRepository.existsByName(promotionRequest.getName())) {
-            return new ResponseEntity<>(new APIRespone(false, "Promotion already exists", ""), HttpStatus.BAD_REQUEST);
-        }
+//        if (promotionRepository.existsByName(promotionRequest.getName())) {
+//            return new ResponseEntity<>(new APIRespone(false, "Promotion already exists", ""), HttpStatus.BAD_REQUEST);
+//        }
         if (promotionRepository.findById(promotionId).isEmpty()) {
             return new ResponseEntity<>(new APIRespone(false, "Promotion not found", ""), HttpStatus.NOT_FOUND);
         }

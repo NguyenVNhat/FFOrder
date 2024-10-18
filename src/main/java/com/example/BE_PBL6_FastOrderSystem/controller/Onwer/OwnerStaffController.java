@@ -3,6 +3,7 @@ package com.example.BE_PBL6_FastOrderSystem.controller.Onwer;
 import com.example.BE_PBL6_FastOrderSystem.request.ScheduleRequest;
 import com.example.BE_PBL6_FastOrderSystem.request.StaffRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
+import com.example.BE_PBL6_FastOrderSystem.security.user.FoodUserDetails;
 import com.example.BE_PBL6_FastOrderSystem.service.IScheduleService;
 import com.example.BE_PBL6_FastOrderSystem.service.IStaffService;
 import jakarta.persistence.PostPersist;
@@ -23,9 +24,10 @@ public class OwnerStaffController {
     public ResponseEntity<APIRespone> getAllStaff() {
         return staffService.getAllStaff();
     }
-    @GetMapping("/staff/store/{storeId}")
-    public ResponseEntity<APIRespone> getStaffByStoreId(@PathVariable Long storeId) {
-        return staffService.getStaffByStoreId(storeId);
+    @GetMapping("/staff/store/")
+    public ResponseEntity<APIRespone> getStaffByStoreId() {
+        Long OwerId = FoodUserDetails.getCurrentUserId();
+        return staffService.getStaffByStoreId(OwerId);
     }
     @GetMapping("/staff/{id}")
     public ResponseEntity<APIRespone> getStaffById(@PathVariable Long id) {

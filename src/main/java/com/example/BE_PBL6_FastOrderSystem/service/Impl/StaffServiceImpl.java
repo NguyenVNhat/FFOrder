@@ -64,12 +64,17 @@ private final StoreRepository storeRepository;
          return ResponseEntity.ok(new APIRespone(true, "Get staff by id successfully", staffRespons));
     }
     @Override
-    public ResponseEntity<APIRespone> getStaffByStoreId(Long storeId) {
+    public ResponseEntity<APIRespone> getStaffByStoreId(Long OwnerId) {
         if (staffRepository.findAll().isEmpty()) {
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body(new APIRespone(false, "No staff found", null));
         }
+        List<Store> stores = storeRepository.findAllByManagerId(OwnerId);
+        if (stores.isEmpty()) {
+            return new ResponseEntity<>(new APIRespone(false, "Store not found", ""), HttpStatus.NOT_FOUND);
+        }
+        Store store = stores.get(0);
         List<StaffResponse> staffRespons = staffRepository.findAll().stream()
-                .filter(staff -> staff.getStore().getStoreId().equals(storeId))
+                .filter(staff -> staff.getStore().getStoreId().equals(store.getStoreId()))
                 .map(staff -> new StaffResponse(staff.getId(), staff.getEmployeeName(), staff.getStaff_code(), staff.getDepartment(), staff.getStore().getStoreId()))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Get staff by store id successfully", staffRespons));

@@ -1,5 +1,6 @@
 package com.example.BE_PBL6_FastOrderSystem.controller.Admin;
 
+import com.example.BE_PBL6_FastOrderSystem.request.AdminProductRequest;
 import com.example.BE_PBL6_FastOrderSystem.request.ProductRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.service.IProductService;
@@ -84,5 +85,11 @@ public class AdminProductController {
             @RequestParam("storeId") Long storeId,
             @RequestParam("productIds") List<Long> productIds) {
         return productService.removeProductsFromStore(productIds, storeId);
+    }
+    @PostMapping("/apply-list-products-to-stores")
+    public ResponseEntity<APIRespone> applyListProductsToStores(
+            @RequestBody AdminProductRequest productRequest) {
+        Long stId = Long.parseLong(productRequest.getStoreId());
+        return productService.applyProductsToStores(productRequest.getProductIds(), stId, productRequest.getQuantity());
     }
 }

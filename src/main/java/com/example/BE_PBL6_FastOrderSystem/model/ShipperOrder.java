@@ -14,10 +14,10 @@ public class ShipperOrder {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "shipper_id, cascade = CascadeType.REMOVE", nullable = false)
+    @JoinColumn(name = "shipper_id", nullable = false)
     private User shipper;
     @ManyToOne
-    @JoinColumn(name = "store_id, cascade = CascadeType.REMOVE", nullable = false)
+    @JoinColumn(name = "store_id", nullable = false)
     private Store store;
     @OneToMany(mappedBy = "shipperOrder", fetch = FetchType.EAGER)
     private List<OrderDetail> orderDetails;

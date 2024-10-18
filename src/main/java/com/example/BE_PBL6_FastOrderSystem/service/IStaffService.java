@@ -11,7 +11,7 @@ public interface IStaffService {
 
     ResponseEntity<APIRespone> getStaffById(Long id);
 
-    ResponseEntity<APIRespone> getStaffByStoreId(Long storeId);
+    ResponseEntity<APIRespone> getStaffByStoreId(Long owerId);
 
     ResponseEntity<APIRespone> getStaffByStaffCode(String staffCode);
 

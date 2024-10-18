@@ -20,10 +20,10 @@ public class Chat {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     @ManyToOne
-    @JoinColumn(name = "sender, cascade = CascadeType.REMOVE", nullable = false)
+    @JoinColumn(name = "sender", nullable = false)
     User sender;
     @ManyToOne
-    @JoinColumn(name = "receiver , cascade = CascadeType.REMOVE", nullable = false)
+    @JoinColumn(name = "receiver", nullable = false)
     User receiver;
     String message;
     LocalDateTime local_time;
