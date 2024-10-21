@@ -24,5 +24,9 @@ public class Rate {
     protected void onCreate() {
         createdAt = java.time.LocalDateTime.now().toString();
     }
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = java.time.LocalDateTime.now().toString();
+    }
 
 }

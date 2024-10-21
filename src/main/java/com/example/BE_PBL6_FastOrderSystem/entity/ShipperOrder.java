@@ -27,4 +27,3 @@ public class ShipperOrder {
     private LocalDateTime deliveredAt;
     private String note;
 }
-

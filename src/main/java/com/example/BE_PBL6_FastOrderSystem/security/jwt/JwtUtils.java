@@ -1,5 +1,6 @@
 package com.example.BE_PBL6_FastOrderSystem.security.jwt;
 
+import com.example.BE_PBL6_FastOrderSystem.security.user.FoodUserDetails;
 import com.example.BE_PBL6_FastOrderSystem.service.IAuthService;
 import com.example.BE_PBL6_FastOrderSystem.service.IUserService;
 import com.example.BE_PBL6_FastOrderSystem.service.Impl.AuthServiceImpl;
@@ -49,7 +50,6 @@ public class JwtUtils {
         List<String> roles = userPrincipal.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-
         return Jwts.builder()
                 .setSubject(userPrincipal.getUsername())
                 .claim("roles", roles)

@@ -99,6 +99,7 @@ public class OrderServiceImpl implements IOrderService {
         order.setUpdatedAt(LocalDateTime.now());
         order.setUser(user);
         order.setFeedBack(false);
+       //order.setCarts(cartItems);
         order.setDeliveryAddress(deliveryAddress);
         if (deliveryAddress.equalsIgnoreCase("Mua tại cửa hàng")) {
             order.setDeliveryAddress("Mua tại cửa hàng");
@@ -134,7 +135,13 @@ public class OrderServiceImpl implements IOrderService {
         order.setOrderDetails(orderDetails);
         order.setTotalAmount(Double.valueOf(orderDetails.stream().mapToDouble(OrderDetail::getTotalPrice).sum()));
         orderRepository.save(order);
-        cartItemRepository.deleteAll(cartItems);
+        Cart cart;
+        for (Cart cartItem : cartItems) {
+            cart = cartItem;
+           // set status cart la da dat hang
+            cart.setStatus("Đã đặt hàng");
+            cartItemRepository.save(cart);
+        }
         System.out.println("Vao 3");
         return ResponseEntity.ok(new APIRespone(true, "Order placed successfully", ""));
     }
@@ -293,13 +300,12 @@ public class OrderServiceImpl implements IOrderService {
         Optional<Store> storeOptional = storeRepository.findById(storeId);
         if (storeOptional.isPresent()) {
             Store store = storeOptional.get();
-            // Sử dụng phương thức calculateShippingFee để tính phí ship
-            Order dummyOrder = new Order(); // Tạo đơn hàng tạm thời chỉ để chứa địa chỉ giao hàng
+            Order dummyOrder = new Order();
             dummyOrder.setLatitude(Latitude);
             dummyOrder.setLongitude(Longitude);
 
             Double shippingFee = calculateShippingFee(dummyOrder, store);
-            totalAmount += shippingFee.longValue(); // Cộng phí ship vào tổng tiền
+            totalAmount += shippingFee.longValue();
         } else {
             return null;
         }
@@ -442,23 +448,48 @@ public class OrderServiceImpl implements IOrderService {
 
 
 
-    @Override
-    public ResponseEntity<APIRespone> cancelOrder(String orderCode, Long userId) {
-        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
-        if (orderOptional.isEmpty()) {
-            return ResponseEntity.badRequest().body(new APIRespone(false, "Order not found", ""));
-        }
-        Order order = orderOptional.get();
-        if (!order.getUser().getId().equals(userId)) {
-            return ResponseEntity.badRequest().body(new APIRespone(false, "Order does not belong to the specified user", ""));
-        }
-        if (order.getStatus().equals("Đơn hàng đã được xác nhận")) { 
-            return ResponseEntity.badRequest().body(new APIRespone(false, "Order cannot be canceled", ""));
-        }
-        order.setStatus(statusOrderRepository.findByStatusName("Đơn hàng đã bị hủy"));
-        orderRepository.save(order);
-        return ResponseEntity.ok(new APIRespone(true, "Order canceled successfully", ""));
+//    @Override
+//    public ResponseEntity<APIRespone> cancelOrder(String orderCode, Long userId) {
+//        Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
+//        if (orderOptional.isEmpty()) {
+//            return ResponseEntity.badRequest().body(new APIRespone(false, "Order not found", ""));
+//        }
+//        Order order = orderOptional.get();
+//        if (!order.getUser().getId().equals(userId)) {
+//            return ResponseEntity.badRequest().body(new APIRespone(false, "Order does not belong to the specified user", ""));
+//        }
+//        if (order.getStatus().equals("Đơn hàng đã được xác nhận")) {
+//            return ResponseEntity.badRequest().body(new APIRespone(false, "Order cannot be canceled", ""));
+//        }
+//        order.setStatus(statusOrderRepository.findByStatusName("Đơn hàng đã bị hủy"));
+//        orderRepository.save(order);
+//        return ResponseEntity.ok(new APIRespone(true, "Order canceled successfully", ""));
+//    }
+@Override
+public ResponseEntity<APIRespone> cancelOrder(String orderCode, Long userId) {
+    Optional<Order> orderOptional = orderRepository.findByOrderCode(orderCode);
+    if (orderOptional.isEmpty()) {
+        return ResponseEntity.badRequest().body(new APIRespone(false, "Order not found", ""));
     }
+    Order order = orderOptional.get();
+    if (!order.getUser().getId().equals(userId)) {
+        return ResponseEntity.badRequest().body(new APIRespone(false, "Order does not belong to the specified user", ""));
+    }
+    if (order.getStatus().equals("Đơn hàng đã được xác nhận")) {
+        return ResponseEntity.badRequest().body(new APIRespone(false, "Order cannot be canceled", ""));
+    }
+    order.setStatus(statusOrderRepository.findByStatusName("Đơn hàng đã bị hủy"));
+    orderRepository.save(order);
+
+    // Retrieve and update the cart status
+    List<Cart> carts = cartItemRepository.findByOrderId(order.getOrderId());
+    for (Cart cart : carts) {
+        cart.setStatus("Đã bị hủy");
+        cartItemRepository.save(cart);
+    }
+
+    return ResponseEntity.ok(new APIRespone(true, "Order and associated cart canceled successfully", ""));
+}
 
     @Override
     public ResponseEntity<APIRespone> getOrdersByStatusAndUserId(String statusName, Long userId) {

@@ -27,6 +27,9 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name = "combo_id")
     private Combo combo;
+    @ManyToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
     private int quantity;
     private double unitPrice;
     private double totalPrice;
@@ -62,6 +65,7 @@ public class Cart {
                 ", user=" + user +
                 ", product=" + product +
                 ", combo=" + combo +
+                ", order=" + order +
                 ", quantity=" + quantity +
                 ", unitPrice=" + unitPrice +
                 ", totalPrice=" + totalPrice +

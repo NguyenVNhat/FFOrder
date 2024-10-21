@@ -93,34 +93,93 @@ public class AuthController {
     public ResponseEntity<APIRespone> verifyOTP(@RequestParam String email, @RequestParam String otp, @RequestParam String newPassword) {
         return authService.confirmOTP(email, otp, newPassword);
     }
-@GetMapping("/oauth2/callback/google")
-public void handleGoogleCallback(HttpServletResponse response, @AuthenticationPrincipal OAuth2User principal) throws Exception {
+//@GetMapping("/oauth2/callback")
+//public void handleCallback(HttpServletResponse response, @AuthenticationPrincipal OAuth2User principal) throws Exception {
+//    if (principal == null) {
+//        response.sendRedirect("http://localhost:3000/login?error");
+//        return;
+//    }
+//    String email = principal.getAttribute("email");
+//    String sub = principal.getAttribute("sub");
+//    String name = principal.getAttribute("name");
+//    String picture = principal.getAttribute("picture");
+//    String base64Image = ImageGeneral.urlToBase64(picture);
+//    Optional<User> optionalUser = userRepository.findByEmail(email);
+//    User user;
+//    if (optionalUser.isPresent()) {
+//        user = optionalUser.get();
+//        user.setAvatar(base64Image);
+//        user.setSub(sub);
+//        userRepository.save(user);
+//    } else {
+//        user = new User();
+//        user.setEmail(email);
+//        user.setSub(sub);
+//        user.setFullName(name);
+//        user.setAvatar(base64Image);
+//        user.setAccountLocked(false);
+//        user.setRole(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("ROLE_USER not found")));
+//        userRepository.save(user);
+//    }
+//    // Convert User to FoodUserDetails
+//    FoodUserDetails userDetails = FoodUserDetails.buildUserDetails(user);
+//    Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//    String jwt = jwtUtils.generateToken(authentication);
+//
+//    response.sendRedirect("http://localhost:3000/oauth2/redirect?token=" + jwt);
+//}
+@GetMapping("/oauth2/callback")
+public void handleCallback(HttpServletResponse response, @AuthenticationPrincipal OAuth2User principal) throws Exception {
     if (principal == null) {
         response.sendRedirect("http://localhost:3000/login?error");
         return;
     }
+
     String email = principal.getAttribute("email");
     String sub = principal.getAttribute("sub");
     String name = principal.getAttribute("name");
     String picture = principal.getAttribute("picture");
-    String base64Image = ImageGeneral.urlToBase64(picture);
-    Optional<User> optionalUser = userRepository.findByEmail(email);
+    String base64Image = picture != null ? ImageGeneral.urlToBase64(picture) : null;
     User user;
-    if (optionalUser.isPresent()) {
-        user = optionalUser.get();
-        user.setAvatar(base64Image);
-        user.setSub(sub);
-        userRepository.save(user);
+    System.out.println("email: " + email);
+
+    if (email != null) {
+        // Google login
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            user.setAvatar(base64Image);
+            user.setSub(sub);
+        } else {
+            user = new User();
+            user.setEmail(email);
+            user.setSub(sub);
+            user.setFullName(name);
+            user.setAvatar(base64Image);
+            user.setAccountLocked(false);
+            user.setRole(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("ROLE_USER not found")));
+        }
     } else {
-        user = new User();
-        user.setEmail(email);
-        user.setSub(sub);
-        user.setFullName(name);
-        user.setAvatar(base64Image);
-        user.setAccountLocked(false);
-        user.setRole(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("ROLE_USER not found")));
-        userRepository.save(user);
+        // Facebook login
+        String facebookId = principal.getAttribute("id");
+        System.out.println("Facebook ID: " + facebookId);
+        Optional<User> optionalUser = userRepository.findByFacebookId(facebookId);
+        if (optionalUser.isPresent()) {
+            user = optionalUser.get();
+            user.setAvatar(base64Image);
+            user.setFacebookId(facebookId);
+        } else {
+            user = new User();
+            user.setFullName(name);
+            user.setFacebookId(facebookId);
+            user.setAvatar(base64Image);
+            user.setAccountLocked(false);
+            user.setRole(roleRepository.findByName("ROLE_USER").orElseThrow(() -> new RuntimeException("ROLE_USER not found")));
+        }
     }
+
+    userRepository.save(user);
+
     // Convert User to FoodUserDetails
     FoodUserDetails userDetails = FoodUserDetails.buildUserDetails(user);
     Authentication authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
@@ -128,7 +187,7 @@ public void handleGoogleCallback(HttpServletResponse response, @AuthenticationPr
 
     response.sendRedirect("http://localhost:3000/oauth2/redirect?token=" + jwt);
 }
-    @GetMapping("/user-info-google")
+    @GetMapping("/user-info")
     public ResponseEntity<APIRespone> getUserInfo(@RequestHeader("Authorization") String token) {
         String jwt = token.substring(7); // Remove "Bearer " prefix
         System.out.println("JWT: " + jwt);

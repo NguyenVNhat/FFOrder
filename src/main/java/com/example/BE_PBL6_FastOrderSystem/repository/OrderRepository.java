@@ -29,4 +29,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByStatus(StatusOrder statusOrder);
     @Query("SELECT o FROM Order o WHERE o.status = ?1")
     List<Order> findAllByOrderCode(String orderCode);
+    @Query("SELECT o FROM Order o JOIN o.orderDetails od WHERE o.user.id = ?1 AND (od.product.productId = ?2 OR od.combo.comboId = ?3)")
+    List<Order> findByUserIdAndProductIdOrComboId(Long userId, Long productId, Long comboId);
 }

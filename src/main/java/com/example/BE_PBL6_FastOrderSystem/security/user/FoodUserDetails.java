@@ -30,7 +30,6 @@ public class FoodUserDetails implements UserDetails {
     private String avatar;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
     private boolean accountLocked;
     private Boolean isActive;
     private Collection<GrantedAuthority> authorities;

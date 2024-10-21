@@ -11,4 +11,6 @@ public interface IRateService {
     ResponseEntity<APIRespone> getRateByProduct(Long productId);
 
     ResponseEntity<APIRespone> getRateByCombo(Long comboId);
+
+    ResponseEntity<APIRespone> getRateByUserId(Long userId);
 }
