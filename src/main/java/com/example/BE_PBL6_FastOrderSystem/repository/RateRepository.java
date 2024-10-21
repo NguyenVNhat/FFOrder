@@ -19,4 +19,6 @@ public interface RateRepository extends JpaRepository<Rate, Long> {
     Optional<Rate> findByUserIdAndComboId(Long userId, Long comboId);
     @Query("SELECT r FROM Rate r WHERE r.combo.comboId = ?1")
     List<Rate> findByComboId(Long comboId);
+    @Query("SELECT r FROM Rate r LEFT JOIN FETCH r.imageRatings WHERE r.product.productId = :productId")
+    List<Rate> findByProductIdWithImageRatings(Long productId);
 }

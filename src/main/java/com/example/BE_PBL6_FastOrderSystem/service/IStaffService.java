@@ -5,7 +5,7 @@ import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import org.springframework.http.ResponseEntity;
 
 public interface IStaffService {
-    ResponseEntity<APIRespone> createStaff(StaffRequest request);
+    ResponseEntity<APIRespone> createStaff(Long OwerId,StaffRequest request);
 
     ResponseEntity<APIRespone> getAllStaff();
 
@@ -15,7 +15,7 @@ public interface IStaffService {
 
     ResponseEntity<APIRespone> getStaffByStaffCode(String staffCode);
 
-    ResponseEntity<APIRespone> updateStaff(Long id, StaffRequest request);
+    ResponseEntity<APIRespone> updateStaff(Long OnerId,Long id, StaffRequest request);
 
     ResponseEntity<APIRespone> deleteStaff(Long id);
 }

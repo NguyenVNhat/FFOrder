@@ -3,6 +3,8 @@ package com.example.BE_PBL6_FastOrderSystem.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Data
 public class RateResponse {
@@ -14,5 +16,6 @@ public class RateResponse {
     private String updatedAt;
     private Long productId;
     private Long comboId;
+    private List<String> image;
 
 }

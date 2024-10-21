@@ -3,6 +3,9 @@ package com.example.BE_PBL6_FastOrderSystem.model;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @Entity
 public class Rate {
@@ -20,9 +23,18 @@ public class Rate {
     @ManyToOne
     @JoinColumn(name = "combo_id")
     private Combo combo;
+    @OneToMany(mappedBy = "rate", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<ImageRating> imageRatings = new ArrayList<>();
+
     @PrePersist
     protected void onCreate() {
         createdAt = java.time.LocalDateTime.now().toString();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = java.time.LocalDateTime.now().toString(); // Cập nhật thời gian mỗi lần update
     }
 
 }

@@ -18,7 +18,8 @@ public class OwnerStaffController {
     private final IScheduleService scheduleService;
     @PostMapping("/staff/create")
     public ResponseEntity<APIRespone> createStaff(@RequestBody StaffRequest request) {
-        return staffService.createStaff(request);
+        Long OwerId = FoodUserDetails.getCurrentUserId();
+        return staffService.createStaff(OwerId,request);
     }
     @GetMapping("/staff/all")
     public ResponseEntity<APIRespone> getAllStaff() {
@@ -39,7 +40,8 @@ public class OwnerStaffController {
     }
     @PutMapping("/staff/update/{id}")
     public ResponseEntity<APIRespone> updateStaff(@PathVariable Long id, @RequestBody StaffRequest request) {
-        return staffService.updateStaff(id, request);
+        Long OwerId = FoodUserDetails.getCurrentUserId();
+        return staffService.updateStaff(OwerId,id, request);
     }
     @DeleteMapping("/staff/delete/{id}")
     public ResponseEntity<APIRespone> deleteStaff(@PathVariable Long id) {

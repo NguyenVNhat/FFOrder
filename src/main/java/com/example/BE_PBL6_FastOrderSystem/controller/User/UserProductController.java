@@ -13,14 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/v1/user/product")
+@RequestMapping("/api/v1/user")
 @RequiredArgsConstructor
 public class UserProductController {
     final private IRateService rateService;
 
-    @PostMapping("/rate")
-    public ResponseEntity<APIRespone> rateProduct(@RequestBody RateRequest rateRequest) {
-        Long userId = FoodUserDetails.getCurrentUserId();
-        return rateService.rateProduct(userId, rateRequest);
-    }
+//    @PostMapping("/rate")
+//    public ResponseEntity<APIRespone> rateProduct(@RequestBody RateRequest rateRequest) {
+//        Long userId = FoodUserDetails.getCurrentUserId();
+//        return rateService.rateProduct(userId, rateRequest);
+//    }
 }

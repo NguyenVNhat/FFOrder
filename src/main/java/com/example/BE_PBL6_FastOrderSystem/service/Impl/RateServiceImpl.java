@@ -1,29 +1,35 @@
 package com.example.BE_PBL6_FastOrderSystem.service.Impl;
 
 import com.example.BE_PBL6_FastOrderSystem.model.Combo;
+import com.example.BE_PBL6_FastOrderSystem.model.ImageRating;
 import com.example.BE_PBL6_FastOrderSystem.model.Product;
 import com.example.BE_PBL6_FastOrderSystem.model.Rate;
-import com.example.BE_PBL6_FastOrderSystem.repository.ComboRepository;
-import com.example.BE_PBL6_FastOrderSystem.repository.ProductRepository;
-import com.example.BE_PBL6_FastOrderSystem.repository.RateRepository;
-import com.example.BE_PBL6_FastOrderSystem.repository.UserRepository;
+import com.example.BE_PBL6_FastOrderSystem.repository.*;
 import com.example.BE_PBL6_FastOrderSystem.request.RateRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.response.RateResponse;
 import com.example.BE_PBL6_FastOrderSystem.service.IRateService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class RateServiceImpl implements IRateService {
     @Autowired
     private final RateRepository rateRepository;
+    @Autowired
+    private final ImageRatingRepository imageRatingRepository;
     @Autowired
     private final ProductRepository productRepository;
     @Autowired
@@ -32,7 +38,7 @@ public class RateServiceImpl implements IRateService {
     private final UserRepository userRepository;
 
     @Override
-    public ResponseEntity<APIRespone> rateProduct(Long userId, RateRequest rateRequest) {
+    public ResponseEntity<APIRespone> rateProduct(Long userId, RateRequest rateRequest,List<MultipartFile> files) {
         if (rateRequest.getProductId() != null && rateRequest.getComboId() != null) {
             return ResponseEntity.ok(new APIRespone(false, "You can only rate either a product or a combo, not both", null));
         }
@@ -68,6 +74,22 @@ public class RateServiceImpl implements IRateService {
         }
 
         rateRepository.save(rate);
+
+        // Nếu có ảnh, chuyển đổi ảnh thành Base64 và lưu vào ImageRating
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile imageFile : files) {
+                try {
+                    String base64Image = Base64.getEncoder().encodeToString(imageFile.getBytes());  // Chuyển ảnh thành Base64
+
+                    ImageRating imageRating = new ImageRating();
+                    imageRating.setImage(base64Image);  // Lưu chuỗi Base64 vào ImageRating
+                    imageRating.setRate(rate);  // Liên kết ImageRating với Rate
+                    imageRatingRepository.save(imageRating);
+                } catch (IOException e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new APIRespone(false, "Error while processing image", null));
+                }
+            }
+        }
         return ResponseEntity.ok(new APIRespone(true, "Rate success", null));
     }
 
@@ -86,7 +108,12 @@ public class RateServiceImpl implements IRateService {
                         rate.getCreatedAt(),
                         rate.getUpdatedAt(),
                         rate.getProduct() != null ? rate.getProduct().getProductId() : null,
-                        rate.getCombo() != null ? rate.getCombo().getComboId() : null
+                        rate.getCombo() != null ? rate.getCombo().getComboId() : null,
+                        rate.getImageRatings() != null ? // Kiểm tra null
+                                rate.getImageRatings().stream()
+                                        .map(ImageRating::getImage) // Lấy danh sách đường dẫn hình ảnh
+                                        .collect(Collectors.toList()) : // List<String>
+                                new ArrayList<>()
                 ))
                 .toList();
         return ResponseEntity.ok(new APIRespone(true, "Rates retrieved successfully", rateResponses));
@@ -106,7 +133,12 @@ public class RateServiceImpl implements IRateService {
                         rate.getCreatedAt(),
                         rate.getUpdatedAt(),
                         rate.getProduct() != null ? rate.getProduct().getProductId() : null,
-                        rate.getCombo() != null ? rate.getCombo().getComboId() : null
+                        rate.getCombo() != null ? rate.getCombo().getComboId() : null,
+                        rate.getImageRatings() != null ? // Kiểm tra null
+                                rate.getImageRatings().stream()
+                                        .map(ImageRating::getImage) // Lấy danh sách đường dẫn hình ảnh
+                                        .collect(Collectors.toList()) : // List<String>
+                                new ArrayList<>()
                 ))
                 .toList();
         return ResponseEntity.ok(new APIRespone(true, "Rates retrieved successfully", rateResponses));
