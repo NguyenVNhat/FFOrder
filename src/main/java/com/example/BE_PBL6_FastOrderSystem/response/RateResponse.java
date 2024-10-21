@@ -16,6 +16,5 @@ public class RateResponse {
     private String updatedAt;
     private Long productId;
     private Long comboId;
-    private List<String> image;
 
 }

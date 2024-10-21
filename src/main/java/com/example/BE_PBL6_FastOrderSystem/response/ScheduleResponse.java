@@ -1,6 +1,6 @@
 package com.example.BE_PBL6_FastOrderSystem.response;
 
-import com.example.BE_PBL6_FastOrderSystem.model.Staff;
+import com.example.BE_PBL6_FastOrderSystem.entity.Staff;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -27,24 +27,23 @@ public class OwnerOrderController {
     @PutMapping("/update-status")
     public ResponseEntity<APIRespone> updateOrderStatus(
             @RequestParam String orderCode,
-            @RequestParam String status) {
-            Long ownerId = FoodUserDetails.getCurrentUserId();
-            System.out.println(ownerId);
-            return orderService.updateStatusDetail(orderCode, ownerId, status);
+            @RequestParam String status,
+            @RequestParam Long storeId ) {
+        return orderService.updateOrderDetailStatus(orderCode, storeId, status);
     }
-    @PutMapping("/update-quantity")
-    public ResponseEntity<APIRespone> updateQuantityProduct(
-            @RequestParam(required = false) Long productId,
-            @RequestParam(required = false) Long comboId,
-            @RequestParam Long storeId,
-            @RequestParam int quantity) {
-        return orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
-    }
-
     @GetMapping("/status")
-    public ResponseEntity<APIRespone> getAllOrderByStatusOfStore(String statusName) {
+    public ResponseEntity<APIRespone> getOrderByStatus(@RequestParam String status) {
         Long ownerId = FoodUserDetails.getCurrentUserId();
-        return orderService.getAllOrderByStatusOfStore(statusName,ownerId);
+        return orderService.getOrderByStatus(ownerId, status);
     }
+//    @PutMapping("/update-quantity")
+//    public ResponseEntity<APIRespone> updateQuantityProduct(
+//            @RequestParam(required = false) Long productId,
+//            @RequestParam(required = false) Long comboId,
+//            @RequestParam Long storeId,
+//            @RequestParam int quantity) {
+//        return orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
+//    }
+
 
 }

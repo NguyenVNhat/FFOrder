@@ -1,8 +1,9 @@
-package com.example.BE_PBL6_FastOrderSystem.model;
+package com.example.BE_PBL6_FastOrderSystem.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
+
+import java.util.List;
 
 @Data
 @Entity
@@ -13,7 +14,6 @@ public class OrderDetail {
     private Long orderDetailId;
     @ManyToOne
     @JoinColumn(name = "order_id")
-    @JsonIgnore
     private Order order;
     @ManyToOne
     @JoinColumn(name = "product_id")
@@ -21,9 +21,13 @@ public class OrderDetail {
     @ManyToOne
     @JoinColumn(name = "combo_id")
     private Combo combo;
-    @ManyToOne
-    @JoinColumn(name = "drink_product_id")
-    private Product drinkProduct;
+    @ManyToMany
+    @JoinTable(
+            name = "order_detail_drink_products",
+            joinColumns = @JoinColumn(name = "order_detail_id"),
+            inverseJoinColumns = @JoinColumn(name = "drink_product_id")
+    )
+    private List<Product> drinkProducts;
 
     private Integer quantity;
     private Double unitPrice;
@@ -38,7 +42,7 @@ public class OrderDetail {
     @JoinColumn(name = "store_id")
     private Store store;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "shipper_order_id")
+    @JoinColumn(name = "shipper_order_id", nullable = true)
     private ShipperOrder shipperOrder;
 
 }

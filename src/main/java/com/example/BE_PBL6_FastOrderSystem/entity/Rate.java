@@ -1,4 +1,4 @@
-package com.example.BE_PBL6_FastOrderSystem.model;
+package com.example.BE_PBL6_FastOrderSystem.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -29,12 +29,10 @@ public class Rate {
     @PrePersist
     protected void onCreate() {
         createdAt = java.time.LocalDateTime.now().toString();
-        updatedAt = createdAt;
     }
-
     @PreUpdate
     protected void onUpdate() {
-        updatedAt = java.time.LocalDateTime.now().toString(); // Cập nhật thời gian mỗi lần update
+        updatedAt = java.time.LocalDateTime.now().toString();
     }
 
 }

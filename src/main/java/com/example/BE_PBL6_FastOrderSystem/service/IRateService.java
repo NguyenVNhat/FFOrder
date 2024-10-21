@@ -9,9 +9,11 @@ import java.util.List;
 
 public interface IRateService {
 
-    ResponseEntity<APIRespone> rateProduct(Long userId, RateRequest rateRequest, List<MultipartFile> files);
+    ResponseEntity<APIRespone> rateProduct(Long userId, RateRequest rateRequest);
 
     ResponseEntity<APIRespone> getRateByProduct(Long productId);
 
     ResponseEntity<APIRespone> getRateByCombo(Long comboId);
+
+    ResponseEntity<APIRespone> getRateByUserId(Long userId);
 }

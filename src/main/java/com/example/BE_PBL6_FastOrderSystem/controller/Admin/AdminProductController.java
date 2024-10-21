@@ -1,6 +1,5 @@
 package com.example.BE_PBL6_FastOrderSystem.controller.Admin;
 
-import com.example.BE_PBL6_FastOrderSystem.request.AdminProductRequest;
 import com.example.BE_PBL6_FastOrderSystem.request.ProductRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.service.IProductService;
@@ -51,15 +50,15 @@ public class AdminProductController {
     }
     @PostMapping("/apply-to-all-stores")
     public ResponseEntity<APIRespone> applyProductToAllStores(
-            @RequestParam("productId") Long productId,
-            @RequestParam("quantity") Integer quantity) {
+            @RequestParam("productId") List<Long> productId,
+            @RequestParam("quantity") List<Integer> quantity) {
         return productService.applyProductToAllStores(productId, quantity);
     }
     @PostMapping("/apply-list-products-to-store")
     public ResponseEntity<APIRespone> applyListProductsToStore(
             @RequestParam("storeId") Long storeId,
             @RequestParam("productIds") List<Long> productIds,
-            @RequestParam("quantity") Integer quantity) {
+            @RequestParam("quantity") List<Integer> quantity) {
         return productService.applyProductsToStore(productIds, storeId, quantity);
     }
     @PostMapping("/apply-all-products-to-store")
@@ -85,11 +84,5 @@ public class AdminProductController {
             @RequestParam("storeId") Long storeId,
             @RequestParam("productIds") List<Long> productIds) {
         return productService.removeProductsFromStore(productIds, storeId);
-    }
-    @PostMapping("/apply-list-products-to-stores")
-    public ResponseEntity<APIRespone> applyListProductsToStores(
-            @RequestBody AdminProductRequest productRequest) {
-        Long stId = Long.parseLong(productRequest.getStoreId());
-        return productService.applyProductsToStores(productRequest.getProductIds(), stId, productRequest.getQuantity());
     }
 }

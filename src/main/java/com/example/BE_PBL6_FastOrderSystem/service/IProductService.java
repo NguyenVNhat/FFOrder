@@ -20,7 +20,7 @@ public interface IProductService {
 
     ResponseEntity<APIRespone> applyAllProductsToStore(Long storeId, int quantity);
 
-    ResponseEntity<APIRespone> applyProductsToStore(List<Long> productIds, Long storeId, int quantity);
+    ResponseEntity<APIRespone> applyProductsToStore(List<Long> productIds, Long storeId, List<Integer> quantity);
 
     ResponseEntity<APIRespone> removeProductsFromStore(List<Long> productIds, Long storeId);
 
@@ -31,12 +31,12 @@ public interface IProductService {
     ResponseEntity<APIRespone> updateProduct(Long id, ProductRequest productRequest);
     ResponseEntity<APIRespone> deleteProduct(Long id);
 
-    ResponseEntity<APIRespone> applyProductToAllStores(Long productId, int quantity);
+    ResponseEntity<APIRespone> applyProductToAllStores(List<Long> productId, List<Integer> quantity);
 
     ResponseEntity<APIRespone> removeProductFromStore(Long storeId, Long productId);
 
-    ResponseEntity<APIRespone> addProductsToStore(List<Long> productIds, Long OwnerId, List<Integer> quantity);
 
-    ResponseEntity<APIRespone> applyProductsToStores(List<Long> productIds, Long storeId, List<Integer> quantity);
+    ResponseEntity<APIRespone> applyProductsToStoreOfOwner(Long managerId, Long storeId, List<Long> productIds, List<Integer> quantity);
+
+    ResponseEntity<APIRespone> updateQuantityProductOfOwner(Long managerId, Long storeId, Long productId, int quantity);
 }
-
