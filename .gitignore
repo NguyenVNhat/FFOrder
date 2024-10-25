@@ -33,3 +33,8 @@ build/
 .vscode/
 # .gitignore
 #src/main/resources/application-secrets.properties
+
+
+# Application Secrets
+src/main/resources/application-secrets.properties
+src/main/resources/application.yml
