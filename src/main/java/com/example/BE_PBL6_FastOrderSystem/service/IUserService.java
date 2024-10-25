@@ -25,6 +25,8 @@ public interface IUserService {
     UserDetails loadUserByNumberPhone(String numberPhone);
 
     ResponseEntity<APIRespone> getAllUsers();
+    ResponseEntity<APIRespone> getByid(Long id);
 
     ResponseEntity<APIRespone> addPhone(Long userId, String phone);
+    ResponseEntity<APIRespone> searchByName(String name);
 }

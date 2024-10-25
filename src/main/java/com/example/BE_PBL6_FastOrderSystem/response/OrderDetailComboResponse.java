@@ -26,7 +26,9 @@ public class OrderDetailComboResponse {
         this.unitPrice = orderDetail.getUnitPrice();
         this.totalPrice = orderDetail.getTotalPrice();
         this.size = orderDetail.getSize().getName();
-        this.drinkId = orderDetail.getDrinkProducts().stream().map(product -> product.getProductId()).toList();
+        this.drinkId = orderDetail.getDrinkProducts() != null ?
+                orderDetail.getDrinkProducts().stream().map(product -> product.getProductId()).toList() :
+                List.of();
         this.storeId = orderDetail.getStore() != null ? orderDetail.getStore().getStoreId() : null;
         this.status = orderDetail.getStatus().getStatusName();
     }

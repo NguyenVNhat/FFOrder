@@ -27,7 +27,8 @@ public class ResponseConverter {
                             store.getOpeningTime(),
                             store.getClosingTime(),
                             store.getCreatedAt(),
-                            store.getUpdatedAt()
+                            store.getUpdatedAt(),
+                            store.getManager().getId()
                     );
                 })
                 .collect(Collectors.toList());

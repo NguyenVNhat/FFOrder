@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -171,6 +172,12 @@ public class UserServiceImpl implements IUserService {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Success", userResponses));
     }
+    @Override
+    public ResponseEntity<APIRespone> getByid(Long id){
+        User user = userRepository.findByid(id);
+        UserResponse userResponse = new UserResponse(user);
+        return ResponseEntity.ok(new APIRespone(true, "Success", userResponse));
+    }
 
     @Override
     public ResponseEntity<APIRespone> addPhone(Long userId, String phone) {
@@ -188,5 +195,19 @@ public class UserServiceImpl implements IUserService {
         user.setPhoneNumber(phone);
         userRepository.save(user);
         return ResponseEntity.ok(new APIRespone(true, "Success", ""));
+    }
+    @Override
+    public   ResponseEntity<APIRespone> searchByName(String name){
+        List<User> list = new ArrayList<>();
+        for(User user : userRepository.findAll()){
+            if(user.getFullName().toLowerCase().contains(name.toLowerCase())){
+                list.add(user);
+            }
+        }
+        List<UserResponse> userResponses = list.stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(new APIRespone(true, "Success", userResponses));
+
     }
 }

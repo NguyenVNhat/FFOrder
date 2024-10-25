@@ -3,14 +3,12 @@ import com.example.BE_PBL6_FastOrderSystem.controller.Payment.MOMO.PaymentMomoCh
 import com.example.BE_PBL6_FastOrderSystem.controller.Payment.ZALOPAY.PaymentZaloPayCheckStatusController;
 import com.example.BE_PBL6_FastOrderSystem.entity.Cart;
 import com.example.BE_PBL6_FastOrderSystem.repository.ProductRepository;
+import com.example.BE_PBL6_FastOrderSystem.repository.PromotionRepository;
 import com.example.BE_PBL6_FastOrderSystem.request.PaymentRequest;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.response.OrderResponse;
 import com.example.BE_PBL6_FastOrderSystem.security.user.FoodUserDetails;
-import com.example.BE_PBL6_FastOrderSystem.service.IComboService;
-import com.example.BE_PBL6_FastOrderSystem.service.IPaymentService;
-import com.example.BE_PBL6_FastOrderSystem.service.IProductService;
-import com.example.BE_PBL6_FastOrderSystem.service.IOrderService;
+import com.example.BE_PBL6_FastOrderSystem.service.*;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.*;
@@ -40,6 +38,7 @@ public class UserOrderController {
     private final PaymentMomoCheckStatusController paymentMomoCheckStatusController;
     private final PaymentZaloPayCheckStatusController paymentZaloPayCheckStatusController;
     private final ProductRepository productRepository;
+    private final PromotionRepository promotionRepository;
 
     public ResponseEntity<APIRespone> checkPaymentMomoStatus(PaymentRequest orderRequest) {
         try {
@@ -74,6 +73,13 @@ public class UserOrderController {
         String paymentMethod = orderRequest.getPaymentMethod();
         Long productId = orderRequest.getProductId();
         Long comboId = orderRequest.getComboId();
+        Long voucherId = orderRequest.getVoucherId();
+        double pricePromotion;
+        if(voucherId != null)
+            pricePromotion = promotionRepository.findByid(voucherId).getDiscountPercentage();
+        else {
+            pricePromotion = 0;
+        }
         List<Long> drinkId = orderRequest.getDrinkId();
         Long storeId = orderRequest.getStoreId();
         Integer quantity = orderRequest.getQuantity();
@@ -107,7 +113,7 @@ public class UserOrderController {
                     ResponseEntity<APIRespone> statusResponse = checkPaymentZaloPayStatus(zalopayResponse.get("apptransid").toString());
                     System.out.println("Payment status response: " + statusResponse);
                     if (statusResponse.getStatusCode() == HttpStatus.OK) {
-                        ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress, longitude,latitude ,orderCode);
+                        ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress, longitude,latitude ,orderCode,pricePromotion);
                         System.out.println("Response khi processOrderNow = ZALOPAY: " + response);
                         if (response.getStatusCode() == HttpStatus.OK) {
                             orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
@@ -148,7 +154,7 @@ public class UserOrderController {
                     }
                     ResponseEntity<APIRespone> statusResponse = checkPaymentMomoStatus(orderRequest);
                     if (statusResponse.getStatusCode() == HttpStatus.OK) {
-                        ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress, longitude,latitude, orderCode);
+                        ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress, longitude,latitude, orderCode,pricePromotion);
                         if (response.getStatusCode() == HttpStatus.OK) {
                             orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
                             ResponseEntity<APIRespone> orderResponse = orderService.findOrderByOrderCode(orderCode);
@@ -173,14 +179,14 @@ public class UserOrderController {
             orderRequest.setOrderInfo("Payment CASH for order " + orderCode);
             orderRequest.setLang("en");
             orderRequest.setExtraData("additional data");
-            ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress,  longitude,latitude, orderCode);
+            ResponseEntity<APIRespone> response = orderService.processOrderNow(userId, paymentMethod, productId, comboId, drinkId ,storeId, quantity, size, deliveryAddress,  longitude,latitude, orderCode,pricePromotion);
             System.out.println("Response order khi processOrderNow = CASH: " + response);
             if (response.getStatusCode() == HttpStatus.OK) {
                 orderService.updateQuantityProduct(productId, comboId, storeId, quantity);
                 ResponseEntity<APIRespone> orderResponse = orderService.findOrderByOrderCode(orderCode);
                 OrderResponse data = (OrderResponse) orderResponse.getBody().getData();
                 paymentService.savePayment(orderRequest, data.getOrderId(), userId);
-              orderService.updateOrderStatus(orderCode, "Đơn hàng đã được xác nhận");
+                orderService.updateOrderStatus(orderCode, "Đơn hàng đã được xác nhận");
             }
             return response;
         } else {

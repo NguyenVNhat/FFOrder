@@ -31,6 +31,7 @@ public class PromotionServiceImpl implements IPromotionService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
 
+
     @Override
     public ResponseEntity<APIRespone> getAllPromotion() {
         if (promotionRepository.findAll().isEmpty()) {

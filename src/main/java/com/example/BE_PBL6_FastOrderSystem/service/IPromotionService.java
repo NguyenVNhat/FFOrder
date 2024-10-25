@@ -10,6 +10,7 @@ public interface IPromotionService {
 
     ResponseEntity<APIRespone> getAllPromotion();
 
+
     ResponseEntity<APIRespone> getPromotionById(Long promotionId);
 
     ResponseEntity<APIRespone> getAllPromoByStoreId(Long storeId);

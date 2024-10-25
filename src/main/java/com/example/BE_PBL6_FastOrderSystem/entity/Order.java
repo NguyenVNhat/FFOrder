@@ -33,12 +33,13 @@ public class Order {
     private Double latitude;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private boolean isFeedBack;
+    private boolean FeedBack;
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }
+
 
     @PreUpdate
     protected void onUpdate() {
@@ -62,7 +63,7 @@ public class Order {
                 ", latitude=" + latitude +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
-                ", isFeedBack=" + isFeedBack +
+                ", isFeedBack=" + FeedBack +
                 '}';
     }
 }

@@ -3,6 +3,7 @@ package com.example.BE_PBL6_FastOrderSystem.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -27,7 +28,7 @@ public class OrderDetail {
             joinColumns = @JoinColumn(name = "order_detail_id"),
             inverseJoinColumns = @JoinColumn(name = "drink_product_id")
     )
-    private List<Product> drinkProducts;
+    private List<Product> drinkProducts = new ArrayList<>();
 
     private Integer quantity;
     private Double unitPrice;

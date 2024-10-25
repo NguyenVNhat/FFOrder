@@ -47,9 +47,10 @@ public class StoreServiceImlp implements IStoreService {
                         store.getPhoneNumber(),
                         store.getOpeningTime(),
                         store.getClosingTime(),
-                        store.getManager().getFullName(),
+
                         store.getCreatedAt(),
-                        store.getUpdatedAt()
+                        store.getUpdatedAt(),
+                        store.getManager().getId()
                 ))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Success", storeResponses));
@@ -71,9 +72,10 @@ public class StoreServiceImlp implements IStoreService {
                 store.getPhoneNumber(),
                 store.getOpeningTime(),
                 store.getClosingTime(),
-                store.getManager().getFullName(),
+
                 store.getCreatedAt(),
-                store.getUpdatedAt()
+                store.getUpdatedAt(),
+                store.getManager().getId()
         )));
     }
 
@@ -93,9 +95,10 @@ public class StoreServiceImlp implements IStoreService {
                         store.getPhoneNumber(),
                         store.getOpeningTime(),
                         store.getClosingTime(),
-                        store.getManager().getFullName(),
+
                         store.getCreatedAt(),
-                        store.getUpdatedAt()
+                        store.getUpdatedAt(),
+                        store.getManager().getId()
                 ))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(new APIRespone(true, "Success", storeResponses));
@@ -179,9 +182,10 @@ public class StoreServiceImlp implements IStoreService {
                 store.getPhoneNumber(),
                 store.getOpeningTime(),
                 store.getClosingTime(),
-                store.getManager().getFullName(),
+
                 store.getCreatedAt(),
-                store.getUpdatedAt()
+                store.getUpdatedAt(),
+                store.getManager().getId()
         )));
     }
 
@@ -274,7 +278,7 @@ public class StoreServiceImlp implements IStoreService {
 //                store.getPhoneNumber(),
 //                store.getOpeningTime(),
 //                store.getClosingTime(),
-//                store.getManager().getFullName(),
+//
 //                store.getCreatedAt(),
 //                store.getUpdatedAt()
 //        )));
@@ -322,9 +326,10 @@ public class StoreServiceImlp implements IStoreService {
                 store.getPhoneNumber(),
                 store.getOpeningTime(),
                 store.getClosingTime(),
-                store.getManager().getFullName(),
+
                 store.getCreatedAt(),
-                store.getUpdatedAt()
+                store.getUpdatedAt(),
+                store.getManager().getId()
         )));
     }
 

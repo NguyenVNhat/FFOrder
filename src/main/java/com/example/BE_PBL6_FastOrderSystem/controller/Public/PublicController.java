@@ -21,6 +21,7 @@ public class PublicController {
     private final ISizeService sizeService;
     private final IStatusOrderService statusOrderService;
     private final IRateService rateService;
+    private final IUserService userService;
 
     private final IOrderService orderService;
     @GetMapping("/categories/all")
@@ -98,6 +99,10 @@ public class PublicController {
     public ResponseEntity<APIRespone> getPromotionById(@PathVariable("id") Long promotionId) {
          return promotionService.getPromotionById(promotionId);
     }
+    @GetMapping("/promotions/store/{id}")
+    public ResponseEntity<APIRespone> getAllPromoByStoreId(@PathVariable Long id) {
+        return promotionService.getAllPromoByStoreId(id);
+    }
     @GetMapping("/sizes/all")
       public ResponseEntity<APIRespone> getSizes() {
          return sizeService.getAllSizes();
@@ -122,4 +127,14 @@ public class PublicController {
     public ResponseEntity<APIRespone> searchShipper(@RequestParam Double longitude, @RequestParam Double latitude, @RequestParam int limit) {
         return orderService.findNearestShipper(longitude, latitude, limit);
     }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<APIRespone> getUserById(@PathVariable("id") Long id) {
+        return userService.getByid(id);
+    }
+    @GetMapping("/user/search/{keyname}")
+    public ResponseEntity<APIRespone> searchUser(@PathVariable String keyname) {
+        return userService.searchByName(keyname);
+    }
+
 }

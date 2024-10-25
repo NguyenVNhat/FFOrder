@@ -140,7 +140,7 @@ public class OrderServiceImpl implements IOrderService {
             cart = cartItem;
            // set status cart la da dat hang
             cart.setStatus("Đã đặt hàng");
-            cartItemRepository.save(cart);
+            cartItemRepository.delete(cart);
         }
         System.out.println("Vao 3");
         return ResponseEntity.ok(new APIRespone(true, "Order placed successfully", ""));
@@ -149,9 +149,10 @@ public class OrderServiceImpl implements IOrderService {
 
     @Transactional
     @Override
-    public ResponseEntity<APIRespone> processOrderNow(Long userId, String paymentMethod, Long productId, Long comboId, List<Long> drinkId, Long storeId, Integer quantity, String size, String deliveryAddress, Double longitude, Double latitude,String orderCode) {
+    public ResponseEntity<APIRespone> processOrderNow(Long userId, String paymentMethod, Long productId, Long comboId, List<Long> drinkId, Long storeId, Integer quantity, String size, String deliveryAddress, Double longitude, Double latitude,String orderCode,double voucherPecent) {
         Product product = null;
         Combo combo = null;
+        System.out.println("ORder sản phẩm");
 
         if (productId != null) {
             Optional<Product> productOptional = productRepository.findByProductId(productId);
@@ -205,6 +206,7 @@ public class OrderServiceImpl implements IOrderService {
             order.setLongitude(longitude);
             order.setLatitude(latitude);
         }
+
         Size s = sizeRepository.findByName(size);
         OrderDetail orderDetail = new OrderDetail();
         orderDetail.setOrder(order);
@@ -219,8 +221,10 @@ public class OrderServiceImpl implements IOrderService {
             orderDetail.setUnitPrice(combo.getComboPrice());
             orderDetail.setTotalPrice(Double.valueOf(combo.getComboPrice() * quantity));
         }
+
         // Thiết lập thông tin nước uống nếu có
         if (drinkId != null && !drinkId.isEmpty()) {
+
             List<Product> drinkProducts = new ArrayList<>();
             for (int i = 0; i < drinkId.size(); i++) {
                 Optional<Product> drinkProductOptional = productRepository.findByProductId(drinkId.get(i));
@@ -232,13 +236,14 @@ public class OrderServiceImpl implements IOrderService {
             }
             orderDetail.setDrinkProducts(drinkProducts);
         }
+
         orderDetail.setSize(s);
         orderDetail.setStore(storeOptional.get());
         orderDetail.setStatus(statusOrder);
         List<OrderDetail> orderDetails = new ArrayList<>();
         orderDetails.add(orderDetail);
         order.setOrderDetails(orderDetails);
-        order.setTotalAmount(orderDetail.getTotalPrice());
+        order.setTotalAmount(orderDetail.getTotalPrice() * (1 - (double)((int) voucherPecent / 100)));
         // Nhóm các order detail theo cửa hàng
         if (!deliveryAddress.equalsIgnoreCase("Mua tại cửa hàng")) {
             Map<Store, List<OrderDetail>> groupedOrderDetails = orderDetails.stream()
@@ -250,6 +255,7 @@ public class OrderServiceImpl implements IOrderService {
             }
         }
         order.setOrderDetails(orderDetails);
+
         orderRepository.save(order);
 
         return ResponseEntity.ok(new APIRespone(true, "Order placed successfully", ""));
@@ -339,11 +345,10 @@ public class OrderServiceImpl implements IOrderService {
                 return ResponseEntity.badRequest().body(new APIRespone(false, "Combo not found", ""));
             }
             Combo combo = comboOptional.get();
-            List<ProductStore> productStores = combo.getProducts().stream()
-                    .map(product -> productStoreRepository.findByProductIdAndStoreId(product.getProductId(), storeId))
-                    .filter(Optional::isPresent)
-                    .map(Optional::get)
-                    .collect(Collectors.toList());
+            List<Product> products = combo.getProducts();
+            List<ProductStore> productStores = convertProductsToProductStores(products);
+
+
             if (productStores.isEmpty()) {
                 return ResponseEntity.badRequest().body(new APIRespone(false, "Product not found", ""));
             }
@@ -358,6 +363,16 @@ public class OrderServiceImpl implements IOrderService {
             return ResponseEntity.ok(new APIRespone(true, "Product quantity updated successfully", ""));
         }
         return ResponseEntity.badRequest().body(new APIRespone(false, "Neither product nor combo found", ""));
+    }
+    public List<ProductStore> convertProductsToProductStores(List<Product> products) {
+        List<ProductStore> productStores = new ArrayList<>();
+        for (Product product : products) {
+            List<ProductStore> stores = productStoreRepository.findByProduct(product);
+            if (stores != null && !stores.isEmpty()) {
+                productStores.addAll(stores);
+            }
+        }
+        return productStores;
     }
     @Transactional
     @Override

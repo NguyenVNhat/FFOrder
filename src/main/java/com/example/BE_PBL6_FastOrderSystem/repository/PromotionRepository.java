@@ -10,6 +10,7 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     boolean existsByName(String promotionName);
 
     boolean existsByStores_StoreId(Long storeId);
+    Promotion findByid(Long id);
 
     List<Promotion> findPromotionsByProductsIn(List<Product> products);
 }

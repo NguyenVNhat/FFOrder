@@ -30,4 +30,5 @@ public class PaymentRequest {
     private String lang;
     private String extraData;
     private String paymentMethod;
+    private Long voucherId;
 }

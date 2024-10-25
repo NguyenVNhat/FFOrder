@@ -5,6 +5,7 @@ import com.example.BE_PBL6_FastOrderSystem.repository.*;
 import com.example.BE_PBL6_FastOrderSystem.response.APIRespone;
 import com.example.BE_PBL6_FastOrderSystem.response.OrderDetailResponse;
 import com.example.BE_PBL6_FastOrderSystem.response.ShipperOrderResponse;
+import com.example.BE_PBL6_FastOrderSystem.service.IAnnouceService;
 import com.example.BE_PBL6_FastOrderSystem.service.IOrderService;
 import com.example.BE_PBL6_FastOrderSystem.service.IShipperOrderService;
 import com.example.BE_PBL6_FastOrderSystem.service.IStatusOrderService;
@@ -30,6 +31,7 @@ public class ShipperOrderImpl implements IShipperOrderService {
     private final StatusOrderRepository statusOrderRepository;
     private final IStatusOrderService statusOrderService;
     private final IOrderService orderService;
+    private final IAnnouceService annouceService;
 
     @Override
     public ResponseEntity<APIRespone> getAll() {
@@ -244,17 +246,54 @@ public class ShipperOrderImpl implements IShipperOrderService {
         if (!orderDetail.getShipperOrder().getShipper().getId().equals(shipperId)) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "The OrderDetail is not being delivered by the specified shipper", ""));
         }
-        StatusOrder statusOrder = statusOrderRepository.findByStatusName("Đơn hàng đang giao");
-        if (statusOrder != null) {
-            orderDetail.setStatus(statusOrder);
-        } else {
+        String status = orderDetail.getStatus().getStatusName();
+        System.out.println(status);
+
+        // Khởi tạo StatusOrder mới
+        StatusOrder statusOrder = null;
+
+        // Cập nhật statusOrder dựa trên status hiện tại
+        if (status.equals("Đơn hàng đã được xác nhận")) {
+            statusOrder = statusOrderRepository.findByStatusName("Đơn hàng đang giao");
+        } else if (status.equals("Đơn hàng đang giao")) {
+            statusOrder = statusOrderRepository.findByStatusName("Đơn hàng đã hoàn thành");
+        }
+
+        // Kiểm tra nếu không tìm thấy statusOrder mới, trả về lỗi
+        if (statusOrder == null) {
             return ResponseEntity.badRequest().body(new APIRespone(false, "Status not found", ""));
         }
-        orderDetailRepository.save(orderDetail);
-        return ResponseEntity.ok(new APIRespone(true, "OrderDetail status updated successfully", ""));
+
+        // Cập nhật status của orderDetail
+        orderDetail.setStatus(statusOrder);
+
+        // Tìm tất cả các OrderDetail có cùng orderId
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderDetail.getOrder().getOrderId());
+
+        // Kiểm tra nếu tất cả các orderDetail có cùng status
+        boolean isUpdateOrderStatus = true;
+        for (OrderDetail item : orderDetails) {
+            if (!item.getStatus().getStatusName().equals(statusOrder.getStatusName())) {
+                isUpdateOrderStatus = false;
+                break;
+            }
+        }
+
+        // Nếu tất cả các orderDetail có cùng status, cập nhật status của Order
+        if (isUpdateOrderStatus) {
+
+            Order order = orderRepository.findById(orderDetail.getOrder().getOrderId()).orElse(null);
+            if (order != null) {
+                order.setStatus(statusOrder);  // Cập nhật status của Order
+                orderRepository.save(order);   // Lưu Order
+                annouceService.addnewannounce(order.getUser().getId(), "Thông báo", "Đơn hàng mã số " + order.getOrderCode() + " : " + statusOrder.getStatusName());
+            }
+        }
+        return ResponseEntity.ok(new APIRespone(true, "Order update successfully", ""));
     }
 
-    @Override
+
+        @Override
     public ResponseEntity<APIRespone> finishDelivery(Long shipperId, Long shipperOrderId, Long orderDetailId) {
         ShipperOrder shipperOrder = shipperOrderRepository.findByIdAndShipperId(shipperOrderId, shipperId);
         if (shipperOrder == null) {
